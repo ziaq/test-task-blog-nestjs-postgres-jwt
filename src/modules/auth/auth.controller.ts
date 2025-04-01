@@ -12,10 +12,17 @@ import { Response, Request } from 'express';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { loginSchema, LoginDto } from './dto/login.dto';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
+import { registerSchema, RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Post('register')
+  async register(@Body(new ZodValidationPipe(registerSchema)) body: RegisterDto) {
+    const user = await this.authService.createUser(body);
+    return { id: user.id, email: user.email };
+  }
 
   @Post('login')
   async login(
@@ -47,7 +54,7 @@ export class AuthController {
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @Body(new ZodValidationPipe(loginSchema)) body: LoginDto, // используем только fingerprint
+    @Body(new ZodValidationPipe(loginSchema)) body: LoginDto,
   ) {
     const user = req.user as { sub: number };
     const fingerprint = body.fingerprint;

@@ -1,5 +1,4 @@
-// auth.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,6 +9,7 @@ import { getConfig } from '../../utils/get-config-util';
 import { Config } from '../../config/config.types';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +23,20 @@ export class AuthService {
     configService: ConfigService,
   ) {
     this.config = getConfig(configService);
+  }
+
+  async createUser(data: RegisterDto): Promise<User> {
+    const existing = await this.usersService.findByEmail(data.email);
+    if (existing) {
+      throw new ConflictException('User with this email already exists');
+    }
+  
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+  
+    return this.usersService.createUser({
+      ...data,
+      password: hashedPassword,
+    });
   }
 
   async generateTokens(userId: number) {

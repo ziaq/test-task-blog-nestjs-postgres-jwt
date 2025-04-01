@@ -13,6 +13,7 @@ import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { loginSchema, LoginDto } from './dto/login.dto';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { registerSchema, RegisterDto } from './dto/register.dto';
+import { RefreshTokenDto, refreshTokenSchema } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -54,7 +55,7 @@ export class AuthController {
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @Body(new ZodValidationPipe(loginSchema)) body: LoginDto,
+    @Body(new ZodValidationPipe(refreshTokenSchema)) body: RefreshTokenDto,
   ) {
     const user = req.user as { sub: number };
     const fingerprint = body.fingerprint;

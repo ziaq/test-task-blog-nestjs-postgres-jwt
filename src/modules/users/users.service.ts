@@ -43,8 +43,8 @@ export class UsersService {
     return this.findById(id);
   }
 
-  async updateAvatar(id: number, avatarPath: string): Promise<User> {
-    await this.userRepo.update(id, { avatar: avatarPath });
+  async updateAvatar(id: number, filename: string): Promise<User> {
+    await this.userRepo.update(id, { avatar: filename });
     return this.findById(id);
   }
 }

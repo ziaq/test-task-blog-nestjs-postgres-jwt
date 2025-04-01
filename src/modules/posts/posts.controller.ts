@@ -13,8 +13,7 @@ import {
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { PostsService } from './posts.service';
-import { GetUser } from '../common/get-user.decorator';
-import { User } from '../users/entities/user.entity';
+import { UserId } from '../common/user-id.decorator';
 import { CreatePostDto, createPostSchema } from './dto/create-post.schema';
 import { UpdatePostDto, updatePostSchema } from './dto/update-post.schema';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
@@ -53,11 +52,11 @@ export class PostsController {
     }),
   )
   create(
-    @GetUser() user: User,
+    @UserId() userId: number,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.postsService.create(user, body, files);
+    return this.postsService.create(userId, body, files);
   }
 
   @Patch(':id')

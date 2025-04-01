@@ -1,11 +1,11 @@
-import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
+import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 import { ZodSchema } from 'zod';
 
 @Injectable()
-export class ZodValidationPipe implements PipeTransform {
-  constructor(private schema: ZodSchema<any>) {}
+export class ZodValidationPipe<T> implements PipeTransform {
+  constructor(private schema: ZodSchema<T>) {}
 
-  transform(value: any, metadata: ArgumentMetadata) {
+  transform(value: unknown): T {
     const result = this.schema.safeParse(value);
     if (!result.success) {
       throw new BadRequestException(result.error.errors);

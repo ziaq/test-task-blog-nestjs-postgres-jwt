@@ -4,16 +4,16 @@ import {
   Body,
   Res,
   UseGuards,
-  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { loginSchema, LoginDto } from './dto/login.dto';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
 import { registerSchema, RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto, refreshTokenSchema } from './dto/refresh-token.dto';
+import { UserId } from '../common/user-id.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -53,15 +53,12 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   async refresh(
-    @Req() req: Request,
+    @UserId() userId: number,
     @Res({ passthrough: true }) res: Response,
     @Body(new ZodValidationPipe(refreshTokenSchema)) body: RefreshTokenDto,
   ) {
-    const user = req.user as { sub: number };
-    const fingerprint = body.fingerprint;
-
-    const { accessToken, refreshToken } = await this.authService.generateTokens(user.sub);
-    await this.authService.storeRefreshToken(user.sub, refreshToken, fingerprint);
+    const { accessToken, refreshToken } = await this.authService.generateTokens(userId);
+    await this.authService.storeRefreshToken(userId, refreshToken, body.fingerprint);
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,

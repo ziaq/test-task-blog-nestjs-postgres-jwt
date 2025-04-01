@@ -5,7 +5,6 @@ import { Post } from './entities/post.entity';
 import { PostImage } from './entities/post-image.entity';
 import { CreatePostDto } from './dto/create-post.schema';
 import { UpdatePostDto } from './dto/update-post.schema';
-import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PostsService {
@@ -23,8 +22,11 @@ export class PostsService {
     });
   }
 
-  async create(user: User, dto: CreatePostDto, images: Express.Multer.File[]) {
-    const post = this.postRepo.create({ text: dto.text, user });
+  async create(userId: number, dto: CreatePostDto, images: Express.Multer.File[]) {
+    const post = this.postRepo.create({
+      text: dto.text,
+      user: { id: userId },
+    });
     await this.postRepo.save(post);
 
     if (images?.length) {

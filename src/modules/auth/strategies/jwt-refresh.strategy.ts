@@ -5,6 +5,7 @@ import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { getConfig } from '../../../utils/get-config-util';
+import { JwtPayload } from '../types/jwt-payload.type';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
@@ -23,7 +24,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     });
   }
 
-  async validate(req: Request, payload: any) {
+  async validate(req: Request, payload: JwtPayload) {
     const refreshToken = req.cookies?.refreshToken;
     const fingerprint = req.body.fingerprint;
 

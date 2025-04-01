@@ -12,9 +12,11 @@ import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 import { RefreshSession } from './entities/refresh-session.entity';
 import { UsersModule } from '../users/users.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     TypeOrmModule.forFeature([RefreshSession]),
     JwtModule.register({}),
     UsersModule,

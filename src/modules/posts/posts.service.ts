@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { Post } from './entities/post.entity';
-import { PostImage } from './entities/post-image.entity';
+import { In, Repository } from 'typeorm';
+
+import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
+
 import { CreatePostDto } from './dto/create-post.schema';
 import { UpdatePostDto } from './dto/update-post.schema';
-import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
+import { Post } from './entities/post.entity';
+import { PostImage } from './entities/post-image.entity';
 
 @Injectable()
 export class PostsService {
@@ -14,16 +16,25 @@ export class PostsService {
     @InjectRepository(PostImage) private imageRepo: Repository<PostImage>,
   ) {}
 
-  async findUserPosts(userId: number, limit: number, offset: number, sort: 'ASC' | 'DESC') {
+  async findUserPosts(
+    userId: number,
+    limit: number,
+    offset: number,
+    sort: 'ASC' | 'DESC',
+  ) {
     return this.postRepo.find({
       where: { user: { id: userId } },
       order: { createdAt: sort },
       skip: offset,
       take: limit,
     });
-  }  
+  }
 
-  async create(userId: number, dto: CreatePostDto, images?: Express.Multer.File[]) {
+  async create(
+    userId: number,
+    dto: CreatePostDto,
+    images?: Express.Multer.File[],
+  ) {
     const post = await this.postRepo.save({
       text: dto.text,
       user: { id: userId },
@@ -31,7 +42,7 @@ export class PostsService {
 
     if (images?.length) {
       await this.imageRepo.save(
-        images.map(file => ({ filename: file.filename, post })),
+        images.map((file) => ({ filename: file.filename, post })),
       );
     }
 
@@ -40,13 +51,16 @@ export class PostsService {
 
   private async deleteImagesByIds(ids: number[]) {
     const images = await this.imageRepo.findBy({ id: In(ids) });
-    const filenames = images.map(img => img.filename);
-    filenames.forEach(name => deleteUploadedFile('post-images', name));
+    const filenames = images.map((img) => img.filename);
+    filenames.forEach((name) => deleteUploadedFile('post-images', name));
     await this.imageRepo.delete(ids);
   }
 
   async update(id: number, dto: UpdatePostDto, files?: Express.Multer.File[]) {
-    const post = await this.postRepo.findOne({ where: { id }, relations: ['images'] });
+    const post = await this.postRepo.findOne({
+      where: { id },
+      relations: ['images'],
+    });
     if (!post) throw new NotFoundException('Post not found');
 
     if (dto.text && dto.text !== post.text) {
@@ -60,20 +74,20 @@ export class PostsService {
 
     if (files?.length) {
       await this.imageRepo.save(
-        files.map(file => ({ filename: file.filename, post })),
+        files.map((file) => ({ filename: file.filename, post })),
       );
     }
 
-    return this.postRepo.findOne({ where: { id }});
+    return this.postRepo.findOne({ where: { id } });
   }
 
   async delete(id: number) {
-    const post = await this.postRepo.findOne({ 
+    const post = await this.postRepo.findOne({
       where: { id },
     });
     if (!post) throw new NotFoundException('Post not found');
-    
-    const imageIds = post.images?.map(img => img.id) ?? [];
+
+    const imageIds = post.images?.map((img) => img.id) ?? [];
     if (imageIds.length > 0) {
       await this.deleteImagesByIds(imageIds);
     }

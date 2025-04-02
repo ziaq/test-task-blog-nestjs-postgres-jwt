@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
-import { UpdateUserDto } from './dto/update-user.schema';
+
 import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
+
+import { UpdateUserDto } from './dto/update-user.schema';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
   async createUser(data: {
     email: string;
@@ -43,7 +43,10 @@ export class UsersService {
     return this.findById(id);
   }
 
-  async updateAvatar(id: number, filename: string): Promise<{ avatar: string }> {
+  async updateAvatar(
+    id: number,
+    filename: string,
+  ): Promise<{ avatar: string }> {
     const user = await this.findById(id);
 
     if (user.avatar) deleteUploadedFile('avatars', user.avatar);

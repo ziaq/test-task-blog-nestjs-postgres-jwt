@@ -10,6 +10,6 @@ export const registerSchema = z
     birthDate: z.coerce.date().optional(),
     about: z.string().max(500).optional(),
   })
-  .strict();;
+  .strict();
 
 export type RegisterDto = z.infer<typeof registerSchema>;

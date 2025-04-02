@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+
 import { CONFIG } from './config.constants';
 import { Config } from './config.types';
 import { envSchema } from './env.schema';

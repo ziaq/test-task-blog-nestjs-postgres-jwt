@@ -1,25 +1,27 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
-  Query,
+  Controller,
+  Delete,
+  Get,
   Param,
-  UseGuards,
+  Patch,
+  Post,
+  Query,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+
+import { multerOptions } from '../../config/multer.options';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { PostsService } from './posts.service';
+import { ImageValidationAndStoragePipe } from '../common/pipes/image-validation-and-storage.pipe';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UserId } from '../common/user-id.decorator';
+
 import { CreatePostDto, createPostSchema } from './dto/create-post.schema';
 import { UpdatePostDto, updatePostSchema } from './dto/update-post.schema';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from '../../config/multer.options';
-import { ImageValidationAndStoragePipe } from '../common/pipes/image-validation-and-storage.pipe';
+import { PostsService } from './posts.service';
 
 @Controller('posts')
 @UseGuards(AccessTokenGuard)
@@ -41,7 +43,8 @@ export class PostsController {
   createPost(
     @UserId() userId: number,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
-    @UploadedFiles(new ImageValidationAndStoragePipe('post-images')) files?: Express.Multer.File[],
+    @UploadedFiles(new ImageValidationAndStoragePipe('post-images'))
+    files?: Express.Multer.File[],
   ) {
     return this.postsService.create(userId, body, files);
   }
@@ -51,7 +54,8 @@ export class PostsController {
   update(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updatePostSchema)) body: UpdatePostDto,
-    @UploadedFiles(new ImageValidationAndStoragePipe('post-images')) files?: Express.Multer.File[],
+    @UploadedFiles(new ImageValidationAndStoragePipe('post-images'))
+    files?: Express.Multer.File[],
   ) {
     return this.postsService.update(+id, body, files);
   }

@@ -1,12 +1,12 @@
-import {
-  PipeTransform,
-  Injectable,
-  BadRequestException,
-} from '@nestjs/common';
-const fileType = require('file-type');
+import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 import { randomBytes } from 'crypto';
-import { join, extname } from 'path';
+import type { FileTypeResult } from 'file-type';
 import * as fs from 'fs/promises';
+import { extname, join } from 'path';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const fileType = require('file-type') as {
+  fromBuffer(buffer: Buffer): Promise<FileTypeResult | undefined>;
+};
 
 @Injectable()
 export class ImageValidationAndStoragePipe implements PipeTransform {
@@ -15,27 +15,33 @@ export class ImageValidationAndStoragePipe implements PipeTransform {
   constructor(private readonly folder: string) {}
 
   async transform<T extends Express.Multer.File | Express.Multer.File[]>(
-    input: T
+    input: T,
   ): Promise<T | undefined> {
     if (!input || (Array.isArray(input) && input.length === 0)) {
       return undefined;
     }
-  
+
     if (Array.isArray(input)) {
-      const result = await Promise.all(input.map((file) => this.validateAndSave(file)));
+      const result = await Promise.all(
+        input.map((file) => this.validateAndSave(file)),
+      );
       return result as T;
     }
-  
+
     const result = await this.validateAndSave(input);
     return result as T;
   }
-  
 
-  private async validateAndSave(file: Express.Multer.File): Promise<Express.Multer.File> {
+  private async validateAndSave(
+    file: Express.Multer.File,
+  ): Promise<Express.Multer.File> {
     // Type check by magic numbers
     const detectedType = await fileType.fromBuffer(file.buffer);
+
     if (!detectedType || !this.ALLOWED_MIME.includes(detectedType.mime)) {
-      throw new BadRequestException('Invalid file type. Only jpg, png, and webp are allowed');
+      throw new BadRequestException(
+        'Invalid file type. Only jpg, png, and webp are allowed',
+      );
     }
 
     const filename = this.generateFilename(file.originalname);

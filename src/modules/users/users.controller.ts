@@ -1,21 +1,23 @@
 import {
+  Body,
   Controller,
   Get,
   Patch,
   Post,
-  UseGuards,
-  Body,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { UserId } from '../common/user-id.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { updateUserSchema, UpdateUserDto } from './dto/update-user.schema';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { ImageValidationAndStoragePipe } from '../common/pipes/image-validation-and-storage.pipe';
+
 import { multerOptions } from '../../config/multer.options';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { ImageValidationAndStoragePipe } from '../common/pipes/image-validation-and-storage.pipe';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { UserId } from '../common/user-id.decorator';
+
+import { UpdateUserDto, updateUserSchema } from './dto/update-user.schema';
+import { UsersService } from './users.service';
 
 @Controller('profile')
 @UseGuards(AccessTokenGuard)
@@ -39,7 +41,8 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file', multerOptions))
   uploadAvatar(
     @UserId() userId: number,
-    @UploadedFile(new ImageValidationAndStoragePipe('avatars')) file: Express.Multer.File,
+    @UploadedFile(new ImageValidationAndStoragePipe('avatars'))
+    file: Express.Multer.File,
   ) {
     return this.usersService.updateAvatar(userId, file.filename);
   }

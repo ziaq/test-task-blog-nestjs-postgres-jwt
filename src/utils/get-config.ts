@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
-import { Config } from '../config/config.types';
+
 import { CONFIG } from '../config/config.constants';
+import { Config } from '../config/config.types';
 
 export function getConfig(configService: ConfigService): Config {
   const config = configService.get<Config>(CONFIG);

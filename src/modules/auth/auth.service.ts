@@ -1,15 +1,17 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { RefreshSession } from './entities/refresh-session.entity';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { getConfig } from '../../utils/get-config';
+import { Repository } from 'typeorm';
+
 import { Config } from '../../config/config.types';
+import { getConfig } from '../../utils/get-config';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+
 import { RegisterDto } from './dto/register.dto';
+import { RefreshSession } from './entities/refresh-session.entity';
 
 @Injectable()
 export class AuthService {
@@ -30,16 +32,16 @@ export class AuthService {
     if (existing) {
       throw new ConflictException('User with this email already exists');
     }
-  
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
-  
+
     return this.usersService.createUser({
       ...data,
       password: hashedPassword,
     });
   }
 
-  async generateTokens(userId: number) {
+  generateTokens(userId: number) {
     const accessToken = this.jwt.sign(
       { sub: userId },
       {
@@ -59,7 +61,11 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async storeRefreshToken(userId: number, refreshToken: string, fingerprint: string) {
+  async storeRefreshToken(
+    userId: number,
+    refreshToken: string,
+    fingerprint: string,
+  ) {
     const hash = await bcrypt.hash(refreshToken, 10);
     const expiresAt = this.getRefreshExpirationDate();
 
@@ -75,11 +81,20 @@ export class AuthService {
     await this.refreshRepo.save(session);
   }
 
-  async validateRefreshToken(userId: number, refreshToken: string, fingerprint: string) {
-    const sessions = await this.refreshRepo.find({ where: { userId, fingerprint } });
+  async validateRefreshToken(
+    userId: number,
+    refreshToken: string,
+    fingerprint: string,
+  ) {
+    const sessions = await this.refreshRepo.find({
+      where: { userId, fingerprint },
+    });
 
     for (const session of sessions) {
-      const match = await bcrypt.compare(refreshToken, session.refreshTokenHash);
+      const match = await bcrypt.compare(
+        refreshToken,
+        session.refreshTokenHash,
+      );
       if (match && session.expiresAt > new Date()) {
         return session;
       }

@@ -1,9 +1,9 @@
 import { ConfigService } from '@nestjs/config';
-import { getConfig } from './utils/get-config';
-
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+
+import { getConfig } from './utils/get-config';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,4 +15,4 @@ async function bootstrap() {
   await app.listen(config.serverPort, config.serverIp);
   console.log(`Server is running on ${config.serverIp}:${config.serverPort}`);
 }
-bootstrap();
+void bootstrap();

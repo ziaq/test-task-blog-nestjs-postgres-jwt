@@ -103,6 +103,23 @@ export class AuthService {
     return null;
   }
 
+  async removeRefreshToken(userId: number, refreshToken: string) {
+    const sessions = await this.refreshRepo.find({
+      where: { userId },
+    });
+
+    for (const session of sessions) {
+      const match = await bcrypt.compare(
+        refreshToken,
+        session.refreshTokenHash,
+      );
+      if (match) {
+        await this.refreshRepo.delete(session.id);
+        break;
+      }
+    }
+  }
+
   private getRefreshExpirationDate(): Date {
     const days = 30;
     const ms = days * 24 * 60 * 60 * 1000;

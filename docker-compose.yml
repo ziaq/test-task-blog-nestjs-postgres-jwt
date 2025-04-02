@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:17.4
-    container_name: my_postgres
+    container_name: postgres_test_task
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USERNAME}
@@ -12,13 +12,13 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: my_nest_app
+    container_name: nest_app_test_task
     depends_on:
       - postgres
     ports:
@@ -29,6 +29,8 @@ services:
       NODE_ENV: ${NODE_ENV}
       SERVER_IP: ${SERVER_IP}
       SERVER_PORT: ${SERVER_PORT}
+      CLIENT_IP: ${CLIENT_IP}
+      CLIENT_PORT: ${CLIENT_PORT}
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_PORT: ${POSTGRES_PORT}
       POSTGRES_USERNAME: ${POSTGRES_USERNAME}
@@ -39,4 +41,4 @@ services:
     command: npm run start:prod
 
 volumes:
-  postgres_data:
+  postgres_volume:

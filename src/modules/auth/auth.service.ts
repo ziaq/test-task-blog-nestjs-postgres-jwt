@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { RefreshSession } from './entities/refresh-session.entity';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
-import { getConfig } from '../../utils/get-config-util';
+import { getConfig } from '../../utils/get-config';
 import { Config } from '../../config/config.types';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';

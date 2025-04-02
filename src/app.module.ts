@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import config from './config/config';
-import { getConfig } from './utils/get-config-util';
+import { getConfig } from './utils/get-config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';

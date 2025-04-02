@@ -2,19 +2,20 @@ import {
   Controller,
   Get,
   Patch,
+  Post,
   UseGuards,
   Body,
   UploadedFile,
   UseInterceptors,
-  BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { UserId } from '../common/user-id.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { updateUserSchema, UpdateUserDto } from './dto/update-user.schema';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
-import { createMulterOptions } from '../../utils/create-multer-options';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { ImageValidationAndStoragePipe } from '../common/pipes/image-validation-and-storage.pipe';
+import { multerOptions } from '../../config/multer.options';
 
 @Controller('profile')
 @UseGuards(AccessTokenGuard)
@@ -34,10 +35,12 @@ export class UsersController {
     return this.usersService.update(userId, body);
   }
 
-  @Patch('avatar')
-  @UseInterceptors(FileInterceptor('file', createMulterOptions('avatars')))
-  uploadAvatar(@UserId() userId: number, @UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new BadRequestException('File was not uploaded');
+  @Post('upload-avatar')
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  uploadAvatar(
+    @UserId() userId: number,
+    @UploadedFile(new ImageValidationAndStoragePipe('avatars')) file: Express.Multer.File,
+  ) {
     return this.usersService.updateAvatar(userId, file.filename);
   }
 }

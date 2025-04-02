@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { loginSchema, LoginDto } from './dto/login.dto';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { registerSchema, RegisterDto } from './dto/register.dto';
 import { RefreshTokenDto, refreshTokenSchema } from './dto/refresh-token.dto';
 import { UserId } from '../common/user-id.decorator';
@@ -33,9 +33,7 @@ export class AuthController {
     const { email, password, fingerprint } = body;
   
     const user = await this.authService.validateUser(email, password);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!user) throw new UnauthorizedException('Invalid credentials');
   
     const { accessToken, refreshToken } = await this.authService.generateTokens(user.id);
   

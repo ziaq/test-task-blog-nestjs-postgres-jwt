@@ -1,7 +1,7 @@
 import {
   Controller,
   Get,
-  Post as HttpPost,
+  Post,
   Patch,
   Delete,
   Body,
@@ -16,68 +16,42 @@ import { PostsService } from './posts.service';
 import { UserId } from '../common/user-id.decorator';
 import { CreatePostDto, createPostSchema } from './dto/create-post.schema';
 import { UpdatePostDto, updatePostSchema } from './dto/update-post.schema';
-import { ZodValidationPipe } from '../common/zod-validation.pipe';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, basename } from 'path';
-import { join } from 'path';
+import { multerOptions } from '../../config/multer.options';
+import { ImageValidationAndStoragePipe } from '../common/pipes/image-validation-and-storage.pipe';
 
 @Controller('posts')
 @UseGuards(AccessTokenGuard)
 export class PostsController {
   constructor(private postsService: PostsService) {}
 
-  @Get()
-  getAll(
+  @Get('get-user-posts')
+  getUserPosts(
+    @UserId() userId: number,
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
     @Query('sort') sort: 'ASC' | 'DESC' = 'DESC',
   ) {
-    return this.postsService.findAll(+limit, +offset, sort);
+    return this.postsService.findUserPosts(userId, +limit, +offset, sort);
   }
 
-  @HttpPost()
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        destination: join(process.cwd(), 'uploads', 'post-images'),
-        filename: (_req: Express.Request, file: Express.Multer.File, cb) => {
-          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          const ext = extname(file.originalname);
-          const name = basename(file.originalname, ext);
-          const uniqueName = `${name}-${uniqueSuffix}${ext}`;
-          cb(null, uniqueName);
-        },
-      }),
-    }),
-  )
-  create(
+  @Post('create-post')
+  @UseInterceptors(FilesInterceptor('file', 10, multerOptions))
+  createPost(
     @UserId() userId: number,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles(new ImageValidationAndStoragePipe('post-images')) files?: Express.Multer.File[],
   ) {
     return this.postsService.create(userId, body, files);
   }
 
   @Patch(':id')
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        destination: join(process.cwd(), 'uploads', 'post-images'),
-        filename: (_req: Express.Request, file: Express.Multer.File, cb) => {
-          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          const ext = extname(file.originalname);
-          const name = basename(file.originalname, ext);
-          const uniqueName = `${name}-${uniqueSuffix}${ext}`;
-          cb(null, uniqueName);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('file', 10, multerOptions))
   update(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updatePostSchema)) body: UpdatePostDto,
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles(new ImageValidationAndStoragePipe('post-images')) files?: Express.Multer.File[],
   ) {
     return this.postsService.update(+id, body, files);
   }

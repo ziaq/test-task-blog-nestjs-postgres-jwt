@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.schema';
+import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +27,6 @@ export class UsersService {
   async findById(id: number): Promise<User> {
     const user = await this.userRepo.findOne({
       where: { id },
-      relations: ['posts'],
     });
     if (!user) throw new NotFoundException('User not found');
     return user;
@@ -43,8 +43,12 @@ export class UsersService {
     return this.findById(id);
   }
 
-  async updateAvatar(id: number, filename: string): Promise<User> {
+  async updateAvatar(id: number, filename: string): Promise<{ avatar: string }> {
+    const user = await this.findById(id);
+
+    if (user.avatar) deleteUploadedFile('avatars', user.avatar);
+
     await this.userRepo.update(id, { avatar: filename });
-    return this.findById(id);
+    return { avatar: filename };
   }
 }

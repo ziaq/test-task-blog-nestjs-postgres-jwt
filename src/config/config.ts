@@ -11,6 +11,8 @@ export default registerAs(CONFIG, (): Config => {
     nodeEnv: env.NODE_ENV,
     serverIp: env.SERVER_IP,
     serverPort: env.SERVER_PORT,
+    clientIp: env.CLIENT_IP,
+    clientPort: env.CLIENT_PORT,
     postgresSettings: {
       host: env.POSTGRES_HOST,
       port: env.POSTGRES_PORT,

@@ -48,7 +48,12 @@
 Требуется в теле запроса JSON-ом:
   - `email` — email пользователя  
   - `password` — пароль  
-  - `fingerprint` — уникальный идентификатор устройства  
+  - `fingerprint` — уникальный идентификатор устройства 
+
+- `POST /auth/logout` — выход пользователя, удаляет refreshToken из базы и очищает cookie  
+    Требуется:
+  - Не истекший `refreshToken` в cookie  
+  - Fingerprint в теле запроса JSON-ом
 
 - `POST /auth/refresh` — возвращает новый `accessToken`  
    	Требуется:
@@ -100,6 +105,8 @@ cd nest-auth-api
 NODE_ENV=development
 SERVER_IP=127.0.0.1
 SERVER_PORT=3001
+CLIENT_IP=127.0.0.1
+CLIENT_PORT=3002
 
 POSTGRES_HOST=127.0.0.1
 POSTGRES_PORT=5242

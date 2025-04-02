@@ -60,6 +60,7 @@ export class AuthController {
     return { accessToken };
   }
 
+  @UseGuards(RefreshTokenGuard)
   @Post('logout')
   async logout(
     @UserId() userId: number,

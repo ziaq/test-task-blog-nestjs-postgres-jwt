@@ -5,7 +5,8 @@ export function registerAuthRefreshPath() {
     method: 'post',
     path: '/auth/refresh',
     summary: 'Обновить access и refresh токен',
-    description: 'Refresh токен передаётся в cookie `refreshToken`, а новый также устанавливается в cookie',
+    description:
+      'Refresh токен передаётся в cookie `refreshToken`, а новый также устанавливается в cookie',
     tags: ['Auth'],
     security: [{ bearerAuth: [] }],
     request: {
@@ -20,7 +21,8 @@ export function registerAuthRefreshPath() {
     },
     responses: {
       200: {
-        description: 'Обновлённый access токен. Новый refresh токен записан в cookie.',
+        description:
+          'Обновлённый access токен. Новый refresh токен записан в cookie.',
         headers: {
           'Set-Cookie': {
             description: 'Устанавливает новый refresh токен (httpOnly, secure)',

@@ -17,8 +17,8 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UserId } from '../common/user-id.decorator';
 
 import { UpdateUserDto, updateUserSchema } from './dto/update-user.schema';
-import { UsersService } from './users.service';
 import { UserResponseDto } from './dto/user-response.schema';
+import { UsersService } from './users.service';
 
 @Controller('profile')
 @UseGuards(AccessTokenGuard)

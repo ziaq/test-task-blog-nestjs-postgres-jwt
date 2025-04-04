@@ -1,13 +1,13 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import * as express from 'express';
 import * as cookieParser from 'cookie-parser';
 import { join } from 'path';
-import * as express from 'express';
 import * as swaggerUi from 'swagger-ui-express';
 
+import { buildOpenApi } from './openapi/build-openapi';
 import { getConfig } from './utils/get-config';
 import { AppModule } from './app.module';
-import { buildOpenApi } from './openapi/build-openapi';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

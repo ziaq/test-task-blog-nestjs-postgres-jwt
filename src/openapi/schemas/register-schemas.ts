@@ -1,4 +1,5 @@
 import { registry } from '../registry';
+
 import { accessTokenResponseSchema } from './auth/access-token-response.openapi';
 import { loginOpenApiSchema } from './auth/login.schema';
 import { refreshTokenOpenApiSchema } from './auth/refresh-token.openapi';

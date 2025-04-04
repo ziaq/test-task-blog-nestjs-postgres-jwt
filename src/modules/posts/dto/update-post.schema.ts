@@ -6,10 +6,9 @@ export const updatePostSchema = z
     deleteImageIds: z
       .preprocess((val) => {
         if (typeof val !== 'string') return undefined;
-    
+
         try {
-          const parsed = JSON.parse(val);
-          return Array.isArray(parsed) ? parsed : undefined;
+          return JSON.parse(val) as unknown;
         } catch {
           return undefined;
         }

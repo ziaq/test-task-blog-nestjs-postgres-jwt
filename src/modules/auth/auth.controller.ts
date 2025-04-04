@@ -14,14 +14,23 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UserId } from '../common/user-id.decorator';
 import { UserResponseDto } from '../users/dto/user-response.schema';
 
+import {
+  AccessTokenResponseDto,
+  accessTokenResponseSchema,
+} from './dto/access-token-response.schema';
 import { LoginDto, loginSchema } from './dto/login.schema';
-import { RefreshTokenDto, refreshTokenSchema } from './dto/refresh-token.schema';
+import {
+  LogoutResponseDto,
+  logoutResponseSchema,
+} from './dto/logout-response.schema';
+import {
+  RefreshTokenDto,
+  refreshTokenSchema,
+} from './dto/refresh-token.schema';
 import { RegisterDto, registerSchema } from './dto/register.schema';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { ReqWithCookie } from './types/req-with-cookie.type';
 import { AuthService } from './auth.service';
-import { AccessTokenResponseDto, accessTokenResponseSchema } from './dto/access-token-response.schema';
-import { LogoutResponseDto, logoutResponseSchema } from './dto/logout-response.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -46,7 +55,9 @@ export class AuthController {
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const { accessToken, refreshToken } = this.authService.generateTokens(user.id);
+    const { accessToken, refreshToken } = this.authService.generateTokens(
+      user.id,
+    );
 
     await this.authService.storeRefreshToken(
       user.id,
@@ -95,7 +106,8 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Body(new ZodValidationPipe(refreshTokenSchema)) body: RefreshTokenDto,
   ): Promise<AccessTokenResponseDto> {
-    const { accessToken, refreshToken } = this.authService.generateTokens(userId);
+    const { accessToken, refreshToken } =
+      this.authService.generateTokens(userId);
     await this.authService.storeRefreshToken(
       userId,
       refreshToken,

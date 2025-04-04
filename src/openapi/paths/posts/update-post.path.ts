@@ -27,12 +27,14 @@ export function registerUpdatePostPath() {
                 deleteImageIds: {
                   type: 'string',
                   example: '[1,2]',
-                  description: 'Массив id изображений, которые нужно удалить. Пример: [23, 56, 79]',
+                  description:
+                    'Массив id изображений, которые нужно удалить. Пример: [23, 56, 79]',
                 },
                 file: {
                   type: 'array',
                   items: { type: 'string', format: 'binary' },
-                  description: 'До 10 файлов PNG или JPEG, каждый не более 5MB. Все файлы передаются в отдельных полях с именем "file".',
+                  description:
+                    'До 10 файлов PNG или JPEG, каждый не более 5MB. Все файлы передаются в отдельных полях с именем "file".',
                 },
               },
             },

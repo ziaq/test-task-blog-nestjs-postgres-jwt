@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { postResponseSchema } from "./post-response.schema";
+import { postResponseSchema } from './post-response.schema';
 
 export const postsResponseSchema = z.array(postResponseSchema);
 

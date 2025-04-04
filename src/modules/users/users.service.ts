@@ -4,10 +4,13 @@ import { Repository } from 'typeorm';
 
 import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
 
-import { UpdateUserDto } from './dto/update-user.schema';
-import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.schema';
-import { UserResponseDto, userResponseSchema } from './dto/user-response.schema';
+import { UpdateUserDto } from './dto/update-user.schema';
+import {
+  UserResponseDto,
+  userResponseSchema,
+} from './dto/user-response.schema';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,8 +18,8 @@ export class UsersService {
 
   async createUser(data: CreateUserDto): Promise<UserResponseDto> {
     const user = await this.userRepo.save(data);
-    
-    const { password, ...safeUser } = user;
+
+    const { password: _, ...safeUser } = user;
     return userResponseSchema.parse(safeUser);
   }
 
@@ -24,7 +27,7 @@ export class UsersService {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
-    const { password, ...safeUser } = user;
+    const { password: _, ...safeUser } = user;
     return userResponseSchema.parse(safeUser);
   }
 
@@ -42,13 +45,13 @@ export class UsersService {
   async updateAvatar(id: number, filename: string): Promise<UserResponseDto> {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
-  
+
     if (user.avatar) deleteUploadedFile('avatars', user.avatar);
-  
+
     user.avatar = filename;
     const updatedUser = await this.userRepo.save(user);
-  
-    const { password, ...safeUser } = updatedUser;
+
+    const { password: _, ...safeUser } = updatedUser;
     return userResponseSchema.parse(safeUser);
   }
 }

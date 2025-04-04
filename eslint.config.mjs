@@ -1,4 +1,3 @@
-// @ts-check
 import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
@@ -29,12 +28,10 @@ export default tseslint.config(
       },
     },
     rules: {
-      // Твои правила
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
 
-      // Сортировка импортов с кастомными группами
       'simple-import-sort/imports': [
         'error',
         {
@@ -55,6 +52,13 @@ export default tseslint.config(
         },
       ],
       'simple-import-sort/exports': 'error',
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "varsIgnorePattern": "^_",
+          "argsIgnorePattern": "^_"
+        }
+      ]
     },
   },
 );

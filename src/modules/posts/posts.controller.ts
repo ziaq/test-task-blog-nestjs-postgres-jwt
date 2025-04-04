@@ -21,10 +21,10 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UserId } from '../common/user-id.decorator';
 
 import { CreatePostDto, createPostSchema } from './dto/create-post.schema';
-import { UpdatePostDto, updatePostSchema } from './dto/update-post.schema';
-import { PostsService } from './posts.service';
 import { PostResponseDto } from './dto/post-response.schema';
 import { PostsResponseDto } from './dto/posts-response.schema';
+import { UpdatePostDto, updatePostSchema } from './dto/update-post.schema';
+import { PostsService } from './posts.service';
 
 @Controller('posts')
 @UseGuards(AccessTokenGuard)
@@ -36,7 +36,7 @@ export class PostsController {
     @UserId() userId: number,
     @Query('limit') limit = '10',
     @Query('offset') offset = '0',
-    @Query('sort') sort: 'ASC' | 'DESC' = 'DESC'
+    @Query('sort') sort: 'ASC' | 'DESC' = 'DESC',
   ): Promise<PostsResponseDto> {
     return this.postsService.findUserPosts(userId, +limit, +offset, sort);
   }
@@ -47,7 +47,8 @@ export class PostsController {
   createPost(
     @UserId() userId: number,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
-    @UploadedFiles(new ImageValidationAndStoragePipe('post-images')) files?: Express.Multer.File[]
+    @UploadedFiles(new ImageValidationAndStoragePipe('post-images'))
+    files?: Express.Multer.File[],
   ): Promise<PostResponseDto> {
     return this.postsService.create(userId, body, files);
   }

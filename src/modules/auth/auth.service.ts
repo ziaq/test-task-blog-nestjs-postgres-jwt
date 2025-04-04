@@ -7,9 +7,9 @@ import { Repository } from 'typeorm';
 
 import { Config } from '../../config/config.types';
 import { getConfig } from '../../utils/get-config';
+import { UserResponseDto } from '../users/dto/user-response.schema';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
-import { UserResponseDto } from '../users/dto/user-response.schema';
 
 import { RegisterDto } from './dto/register.schema';
 import { RefreshSession } from './entities/refresh-session.entity';
@@ -20,7 +20,8 @@ export class AuthService {
 
   constructor(
     private jwt: JwtService,
-    @InjectRepository(RefreshSession) private refreshRepo: Repository<RefreshSession>,
+    @InjectRepository(RefreshSession)
+    private refreshRepo: Repository<RefreshSession>,
     private usersService: UsersService,
     configService: ConfigService,
   ) {
@@ -29,7 +30,8 @@ export class AuthService {
 
   async createUser(data: RegisterDto): Promise<UserResponseDto> {
     const email = await this.usersService.findByEmail(data.email);
-    if (email) throw new ConflictException('User with this email already exists');
+    if (email)
+      throw new ConflictException('User with this email already exists');
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const safeUser = await this.usersService.createUser({
@@ -40,7 +42,10 @@ export class AuthService {
     return safeUser;
   }
 
-  generateTokens(userId: number): { accessToken: string; refreshToken: string; }  {
+  generateTokens(userId: number): {
+    accessToken: string;
+    refreshToken: string;
+  } {
     const accessToken = this.jwt.sign(
       { sub: userId },
       {
@@ -96,7 +101,10 @@ export class AuthService {
     });
 
     for (const session of sessions) {
-      const match = await bcrypt.compare(refreshToken, session.refreshTokenHash);
+      const match = await bcrypt.compare(
+        refreshToken,
+        session.refreshTokenHash,
+      );
       if (match && session.expiresAt > new Date()) {
         return session;
       }
@@ -105,11 +113,17 @@ export class AuthService {
     return null;
   }
 
-  async removeRefreshToken(userId: number, refreshToken: string): Promise<void> {
+  async removeRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<void> {
     const sessions = await this.refreshRepo.find({ where: { userId } });
 
     for (const session of sessions) {
-      const match = await bcrypt.compare(refreshToken, session.refreshTokenHash);
+      const match = await bcrypt.compare(
+        refreshToken,
+        session.refreshTokenHash,
+      );
       if (match) {
         await this.refreshRepo.delete(session.id);
         return;

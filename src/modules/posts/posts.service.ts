@@ -5,11 +5,17 @@ import { In, Repository } from 'typeorm';
 import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
 
 import { CreatePostDto } from './dto/create-post.schema';
+import {
+  PostResponseDto,
+  postResponseSchema,
+} from './dto/post-response.schema';
+import {
+  PostsResponseDto,
+  postsResponseSchema,
+} from './dto/posts-response.schema';
 import { UpdatePostDto } from './dto/update-post.schema';
 import { Post } from './entities/post.entity';
 import { PostImage } from './entities/post-image.entity';
-import { PostsResponseDto, postsResponseSchema } from './dto/posts-response.schema';
-import { PostResponseDto, postResponseSchema } from './dto/post-response.schema';
 
 @Injectable()
 export class PostsService {
@@ -55,7 +61,7 @@ export class PostsService {
       where: { id: post.id },
       relations: ['images'],
     });
-  
+
     return postResponseSchema.parse(postWithImages);
   }
 
@@ -67,9 +73,9 @@ export class PostsService {
   }
 
   async update(
-    id: number, 
-    dto: UpdatePostDto, 
-    files?: Express.Multer.File[]
+    id: number,
+    dto: UpdatePostDto,
+    files?: Express.Multer.File[],
   ): Promise<PostResponseDto> {
     const post = await this.postRepo.findOne({
       where: { id },

@@ -8,6 +8,8 @@ import { CreatePostDto } from './dto/create-post.schema';
 import { UpdatePostDto } from './dto/update-post.schema';
 import { Post } from './entities/post.entity';
 import { PostImage } from './entities/post-image.entity';
+import { PostsResponseDto, postsResponseSchema } from './dto/posts-response.schema';
+import { PostResponseDto, postResponseSchema } from './dto/post-response.schema';
 
 @Injectable()
 export class PostsService {
@@ -21,20 +23,23 @@ export class PostsService {
     limit: number,
     offset: number,
     sort: 'ASC' | 'DESC',
-  ) {
-    return this.postRepo.find({
+  ): Promise<PostsResponseDto> {
+    const posts = await this.postRepo.find({
       where: { user: { id: userId } },
       order: { createdAt: sort },
       skip: offset,
       take: limit,
+      relations: ['images'],
     });
+
+    return postsResponseSchema.parse(posts);
   }
 
   async create(
     userId: number,
     dto: CreatePostDto,
     images?: Express.Multer.File[],
-  ) {
+  ): Promise<PostResponseDto> {
     const post = await this.postRepo.save({
       text: dto.text,
       user: { id: userId },
@@ -46,7 +51,12 @@ export class PostsService {
       );
     }
 
-    return { id: post.id };
+    const postWithImages = await this.postRepo.findOneOrFail({
+      where: { id: post.id },
+      relations: ['images'],
+    });
+  
+    return postResponseSchema.parse(postWithImages);
   }
 
   private async deleteImagesByIds(ids: number[]) {
@@ -56,7 +66,11 @@ export class PostsService {
     await this.imageRepo.delete(ids);
   }
 
-  async update(id: number, dto: UpdatePostDto, files?: Express.Multer.File[]) {
+  async update(
+    id: number, 
+    dto: UpdatePostDto, 
+    files?: Express.Multer.File[]
+  ): Promise<PostResponseDto> {
     const post = await this.postRepo.findOne({
       where: { id },
       relations: ['images'],
@@ -78,12 +92,18 @@ export class PostsService {
       );
     }
 
-    return this.postRepo.findOne({ where: { id } });
+    const updatedPost = await this.postRepo.findOne({
+      where: { id: post.id },
+      relations: ['images'],
+    });
+
+    return postResponseSchema.parse(updatedPost);
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<void> {
     const post = await this.postRepo.findOne({
       where: { id },
+      relations: ['images'],
     });
     if (!post) throw new NotFoundException('Post not found');
 
@@ -93,6 +113,5 @@ export class PostsService {
     }
 
     await this.postRepo.remove(post);
-    return { message: 'Post deleted' };
   }
 }

@@ -13,6 +13,7 @@ export default registerAs(CONFIG, (): Config => {
     serverPort: env.SERVER_PORT,
     clientIp: env.CLIENT_IP,
     clientPort: env.CLIENT_PORT,
+    openApiHost: env.OPENAPI_HOST,
     postgresSettings: {
       host: env.POSTGRES_HOST,
       port: env.POSTGRES_PORT,

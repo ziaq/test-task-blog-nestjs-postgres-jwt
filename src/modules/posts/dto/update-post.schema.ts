@@ -5,16 +5,14 @@ export const updatePostSchema = z
     text: z.string().min(1).max(10_000).optional(),
     deleteImageIds: z
       .preprocess((val) => {
-        if (typeof val !== 'string') {
-          throw new Error('deleteImageIds must be a stringified array');
+        if (typeof val !== 'string') return undefined;
+    
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : undefined;
+        } catch {
+          return undefined;
         }
-
-        const parsed = JSON.parse(val) as unknown as number[];
-        if (!Array.isArray(parsed)) {
-          throw new Error('deleteImageIds must be an array');
-        }
-
-        return parsed;
       }, z.array(z.number()))
       .optional(),
   })

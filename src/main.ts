@@ -3,10 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { join } from 'path';
 import * as express from 'express';
+import * as swaggerUi from 'swagger-ui-express';
 
 import { getConfig } from './utils/get-config';
 import { AppModule } from './app.module';
-
+import { buildOpenApi } from './openapi/build-openapi';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,9 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const config = getConfig(configService);
+
+  const openApiDocument = buildOpenApi(config);
+  app.use('/api', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
   app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 

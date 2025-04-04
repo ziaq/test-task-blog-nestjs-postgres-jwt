@@ -6,6 +6,7 @@ export const envSchema = z.object({
   SERVER_PORT: z.coerce.number(),
   CLIENT_IP: z.string(),
   CLIENT_PORT: z.coerce.number(),
+  OPENAPI_HOST: z.string(),
   POSTGRES_HOST: z.string(),
   POSTGRES_PORT: z.coerce.number(),
   POSTGRES_USERNAME: z.string(),

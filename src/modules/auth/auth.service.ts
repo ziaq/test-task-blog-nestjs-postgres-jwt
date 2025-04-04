@@ -9,8 +9,9 @@ import { Config } from '../../config/config.types';
 import { getConfig } from '../../utils/get-config';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { UserResponseDto } from '../users/dto/user-response.schema';
 
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto } from './dto/register.schema';
 import { RefreshSession } from './entities/refresh-session.entity';
 
 @Injectable()
@@ -19,29 +20,27 @@ export class AuthService {
 
   constructor(
     private jwt: JwtService,
-    @InjectRepository(RefreshSession)
-    private refreshRepo: Repository<RefreshSession>,
+    @InjectRepository(RefreshSession) private refreshRepo: Repository<RefreshSession>,
     private usersService: UsersService,
     configService: ConfigService,
   ) {
     this.config = getConfig(configService);
   }
 
-  async createUser(data: RegisterDto): Promise<User> {
-    const existing = await this.usersService.findByEmail(data.email);
-    if (existing) {
-      throw new ConflictException('User with this email already exists');
-    }
+  async createUser(data: RegisterDto): Promise<UserResponseDto> {
+    const email = await this.usersService.findByEmail(data.email);
+    if (email) throw new ConflictException('User with this email already exists');
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-
-    return this.usersService.createUser({
+    const safeUser = await this.usersService.createUser({
       ...data,
       password: hashedPassword,
     });
+
+    return safeUser;
   }
 
-  generateTokens(userId: number) {
+  generateTokens(userId: number): { accessToken: string; refreshToken: string; }  {
     const accessToken = this.jwt.sign(
       { sub: userId },
       {
@@ -65,7 +64,7 @@ export class AuthService {
     userId: number,
     refreshToken: string,
     fingerprint: string,
-  ) {
+  ): Promise<void> {
     const hash = await bcrypt.hash(refreshToken, 10);
     const expiresAt = this.getRefreshExpirationDate();
 
@@ -81,20 +80,23 @@ export class AuthService {
     await this.refreshRepo.save(session);
   }
 
+  getRefreshExpirationDate(): Date {
+    const days = 30;
+    const ms = days * 24 * 60 * 60 * 1000;
+    return new Date(Date.now() + ms);
+  }
+
   async validateRefreshToken(
     userId: number,
     refreshToken: string,
     fingerprint: string,
-  ) {
+  ): Promise<RefreshSession | null> {
     const sessions = await this.refreshRepo.find({
       where: { userId, fingerprint },
     });
 
     for (const session of sessions) {
-      const match = await bcrypt.compare(
-        refreshToken,
-        session.refreshTokenHash,
-      );
+      const match = await bcrypt.compare(refreshToken, session.refreshTokenHash);
       if (match && session.expiresAt > new Date()) {
         return session;
       }
@@ -103,27 +105,16 @@ export class AuthService {
     return null;
   }
 
-  async removeRefreshToken(userId: number, refreshToken: string) {
-    const sessions = await this.refreshRepo.find({
-      where: { userId },
-    });
+  async removeRefreshToken(userId: number, refreshToken: string): Promise<void> {
+    const sessions = await this.refreshRepo.find({ where: { userId } });
 
     for (const session of sessions) {
-      const match = await bcrypt.compare(
-        refreshToken,
-        session.refreshTokenHash,
-      );
+      const match = await bcrypt.compare(refreshToken, session.refreshTokenHash);
       if (match) {
         await this.refreshRepo.delete(session.id);
-        break;
+        return;
       }
     }
-  }
-
-  private getRefreshExpirationDate(): Date {
-    const days = 30;
-    const ms = days * 24 * 60 * 60 * 1000;
-    return new Date(Date.now() + ms);
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {

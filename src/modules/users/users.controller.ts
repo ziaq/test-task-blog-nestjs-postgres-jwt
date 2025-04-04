@@ -18,6 +18,7 @@ import { UserId } from '../common/user-id.decorator';
 
 import { UpdateUserDto, updateUserSchema } from './dto/update-user.schema';
 import { UsersService } from './users.service';
+import { UserResponseDto } from './dto/user-response.schema';
 
 @Controller('profile')
 @UseGuards(AccessTokenGuard)
@@ -25,7 +26,7 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  getProfile(@UserId() userId: number) {
+  getProfile(@UserId() userId: number): Promise<UserResponseDto> {
     return this.usersService.findById(userId);
   }
 
@@ -33,7 +34,7 @@ export class UsersController {
   updateProfile(
     @UserId() userId: number,
     @Body(new ZodValidationPipe(updateUserSchema)) body: UpdateUserDto,
-  ) {
+  ): Promise<UserResponseDto> {
     return this.usersService.update(userId, body);
   }
 
@@ -43,7 +44,7 @@ export class UsersController {
     @UserId() userId: number,
     @UploadedFile(new ImageValidationAndStoragePipe('avatars'))
     file: Express.Multer.File,
-  ) {
+  ): Promise<UserResponseDto> {
     return this.usersService.updateAvatar(userId, file.filename);
   }
 }

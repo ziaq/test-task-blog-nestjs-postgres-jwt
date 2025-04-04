@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   Post,
   Req,
   Res,
@@ -11,39 +12,41 @@ import { Response } from 'express';
 
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UserId } from '../common/user-id.decorator';
+import { UserResponseDto } from '../users/dto/user-response.schema';
 
-import { LoginDto, loginSchema } from './dto/login.dto';
-import { RefreshTokenDto, refreshTokenSchema } from './dto/refresh-token.dto';
-import { RegisterDto, registerSchema } from './dto/register.dto';
+import { LoginDto, loginSchema } from './dto/login.schema';
+import { RefreshTokenDto, refreshTokenSchema } from './dto/refresh-token.schema';
+import { RegisterDto, registerSchema } from './dto/register.schema';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { ReqWithCookie } from './types/req-with-cookie.type';
 import { AuthService } from './auth.service';
+import { AccessTokenResponseDto, accessTokenResponseSchema } from './dto/access-token-response.schema';
+import { LogoutResponseDto, logoutResponseSchema } from './dto/logout-response.schema';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
+  @HttpCode(201)
   async register(
     @Body(new ZodValidationPipe(registerSchema)) body: RegisterDto,
-  ) {
+  ): Promise<UserResponseDto> {
     const user = await this.authService.createUser(body);
-    return { id: user.id, email: user.email };
+    return user;
   }
 
   @Post('login')
   async login(
     @Body(new ZodValidationPipe(loginSchema)) body: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<AccessTokenResponseDto> {
     const { email, password, fingerprint } = body;
 
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const { accessToken, refreshToken } = this.authService.generateTokens(
-      user.id,
-    );
+    const { accessToken, refreshToken } = this.authService.generateTokens(user.id);
 
     await this.authService.storeRefreshToken(
       user.id,
@@ -57,7 +60,7 @@ export class AuthController {
       secure: true,
     });
 
-    return { accessToken };
+    return accessTokenResponseSchema.parse({ accessToken });
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -66,7 +69,7 @@ export class AuthController {
     @UserId() userId: number,
     @Req() req: ReqWithCookie,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<LogoutResponseDto> {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found in cookies');
@@ -80,7 +83,9 @@ export class AuthController {
       secure: true,
     });
 
-    return { message: 'Logged out successfully' };
+    return logoutResponseSchema.parse({
+      message: 'Logged out successfully',
+    });
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -89,9 +94,8 @@ export class AuthController {
     @UserId() userId: number,
     @Res({ passthrough: true }) res: Response,
     @Body(new ZodValidationPipe(refreshTokenSchema)) body: RefreshTokenDto,
-  ) {
-    const { accessToken, refreshToken } =
-      this.authService.generateTokens(userId);
+  ): Promise<AccessTokenResponseDto> {
+    const { accessToken, refreshToken } = this.authService.generateTokens(userId);
     await this.authService.storeRefreshToken(
       userId,
       refreshToken,
@@ -102,6 +106,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'strict',
       secure: true,
+      expires: this.authService.getRefreshExpirationDate(),
     });
 
     return { accessToken };

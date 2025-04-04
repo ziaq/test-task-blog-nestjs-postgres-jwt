@@ -1,0 +1,599 @@
+openapi: 3.0.0
+info:
+  title: test-task-blog-nestjs-postgres API
+  description: "Documentation for endpoints "
+  version: 1.0.0
+servers:
+  - url: http://localhost:3002
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access токен в заголовке Authorization
+    refreshTokenCookie:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+      description: Refresh токен в HttpOnly cookie
+  schemas:
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+          example: user@example.com
+        password:
+          type: string
+          minLength: 6
+          description: Пароль
+          example: "12345678"
+        fingerprint:
+          type: string
+          minLength: 1
+          description: Отпечаток браузера или устройства
+          example: a1b2c3d4e5
+      required:
+        - email
+        - password
+        - fingerprint
+      additionalProperties: false
+    AccessTokenResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT Access токен
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      required:
+        - accessToken
+    RegisterDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+          example: ivan@example.com
+        password:
+          type: string
+          minLength: 6
+          description: Пароль
+          example: secret123
+        firstName:
+          type: string
+          minLength: 1
+          description: Имя
+          example: Иван
+        lastName:
+          type: string
+          minLength: 1
+          description: Фамилия
+          example: Петров
+        phone:
+          type: string
+          minLength: 5
+          description: Номер телефона
+          example: "+79998887766"
+        birthDate:
+          type: string
+          nullable: true
+          description: Дата рождения
+          example: 2000-01-01T00:00:00.000Z
+        about:
+          type: string
+          maxLength: 500
+          description: О себе
+          example: React frontend developer
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+      additionalProperties: false
+    RefreshTokenDto:
+      type: object
+      properties:
+        fingerprint:
+          type: string
+          description: Уникальный отпечаток устройства
+          example: device-abc-123
+      required:
+        - fingerprint
+      additionalProperties: false
+    CreateUserDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email пользователя
+          example: user@example.com
+        password:
+          type: string
+          minLength: 6
+          description: Пароль
+          example: qwerty123
+        firstName:
+          type: string
+          description: Имя
+          example: Иван
+        lastName:
+          type: string
+          description: Фамилия
+          example: Петров
+        phone:
+          type: string
+          description: Телефон
+          example: "+79991112233"
+        birthDate:
+          type: string
+          nullable: true
+          description: Дата рождения
+          example: 1990-01-01T00:00:00.000Z
+        about:
+          type: string
+          description: О себе
+          example: Frontend разработчик
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+    UpdateUserDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Имя пользователя
+          example: Иван
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Фамилия пользователя
+          example: Петров
+        phone:
+          type: string
+          maxLength: 100
+          description: Номер телефона
+          example: "+79998887766"
+        birthDate:
+          type: string
+          maxLength: 100
+          format: date-time
+          description: Дата рождения
+          example: 2000-01-01T00:00:00.000Z
+        email:
+          type: string
+          format: email
+          description: Email
+          example: ivan@example.com
+        about:
+          type: string
+          maxLength: 1000
+          description: О себе
+          example: Frontend developer
+      additionalProperties: false
+    UserResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: ID пользователя
+          example: 1
+        email:
+          type: string
+          format: email
+          description: Email
+          example: user@example.com
+        firstName:
+          type: string
+          description: Имя
+          example: Иван
+        lastName:
+          type: string
+          description: Фамилия
+          example: Петров
+        phone:
+          type: string
+          nullable: true
+          description: Номер телефона
+          example: "+79991112233"
+        birthDate:
+          type: string
+          nullable: true
+          description: Дата рождения
+          example: 2000-01-01T00:00:00.000Z
+        about:
+          type: string
+          nullable: true
+          description: О себе
+          example: Frontend разработчик
+        avatar:
+          type: string
+          nullable: true
+          description: Имя файла аватара
+          example: avatar123.png
+      required:
+        - id
+        - email
+        - firstName
+        - lastName
+        - phone
+        - birthDate
+        - about
+        - avatar
+    CreatePostDto:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: Текст поста
+          example: Привет, это мой первый пост!
+      required:
+        - text
+      additionalProperties: false
+    UpdatePostDto:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: Обновлённый текст поста
+          example: Теперь я обновил этот пост!
+        deleteImageIds:
+          type: array
+          items:
+            type: number
+          description: JSON-массив ID изображений, которые нужно удалить
+          example: "[1, 2, 3]"
+      additionalProperties: false
+    PostResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: ID поста
+          example: 42
+        text:
+          type: string
+          description: Текст поста
+          example: Содержимое поста
+        createdAt:
+          type: string
+          nullable: true
+          description: Дата создания
+          example: 2024-01-01T00:00:00.000Z
+        updatedAt:
+          type: string
+          nullable: true
+          description: Дата последнего обновления
+          example: 2024-01-01T00:00:00.000Z
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              filename:
+                type: string
+            required:
+              - id
+              - filename
+          description: Массив изображений поста
+      required:
+        - id
+        - text
+        - createdAt
+        - updatedAt
+        - images
+    PostsResponseDto:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: number
+          text:
+            type: string
+          createdAt:
+            type: string
+            nullable: true
+          updatedAt:
+            type: string
+            nullable: true
+          images:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: number
+                filename:
+                  type: string
+              required:
+                - id
+                - filename
+        required:
+          - id
+          - text
+          - createdAt
+          - updatedAt
+          - images
+  parameters: {}
+paths:
+  /auth/register:
+    post:
+      summary: Регистрация нового пользователя
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterDto"
+      responses:
+        "201":
+          description: Пользователь успешно зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+  /auth/login:
+    post:
+      summary: Аутентификация пользователя
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginDto"
+      responses:
+        "200":
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponseDto"
+  /auth/logout:
+    post:
+      summary: Выход пользователя и удаление refresh токена
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Успешный выход
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponseDto"
+  /auth/refresh:
+    post:
+      summary: Обновить access и refresh токен
+      description: Refresh токен передаётся в cookie `refreshToken`, а новый также
+        устанавливается в cookie
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Fingerprint обязателен. Refresh токен берётся из cookie.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenDto"
+      responses:
+        "200":
+          description: Обновлённый access токен. Новый refresh токен записан в cookie.
+          headers:
+            Set-Cookie:
+              description: Устанавливает новый refresh токен (httpOnly, secure)
+              schema:
+                type: string
+                example: refreshToken=abc123; HttpOnly; Secure; SameSite=Strict; Expires=Sat, 04
+                  May 2025 10:00:00 GMT; Path=/
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessTokenResponseDto"
+  /profile:
+    get:
+      summary: Получить профиль текущего пользователя
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Профиль пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+    patch:
+      summary: Обновить профиль текущего пользователя
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserDto"
+      responses:
+        "200":
+          description: Профиль обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+  /profile/upload-avatar:
+    post:
+      summary: Загрузить новый аватар пользователя
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PNG или JPEG изображение. Макс. размер — 5MB
+              required:
+                - file
+      responses:
+        "200":
+          description: Профиль с обновлённым аватаром
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+  /posts/create-post:
+    post:
+      summary: Создать новый пост
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Текст поста
+                  example: Мой пост!
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: До 10 файлов PNG или JPEG, каждый не более 5MB. Все файлы
+                    передаются в отдельных полях с именем "file".
+              required:
+                - text
+      responses:
+        "201":
+          description: Созданный пост
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponseDto"
+  /posts/{id}:
+    delete:
+      summary: Удалить пост
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      responses:
+        "204":
+          description: Пост успешно удалён. Тело ответа отсутствует.
+    patch:
+      summary: Обновить пост
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: Обновлённый текст
+                deleteImageIds:
+                  type: string
+                  example: "[1,2]"
+                  description: "Массив id изображений, которые нужно удалить. Пример: [23, 56,
+                    79]"
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: До 10 файлов PNG или JPEG, каждый не более 5MB. Все файлы
+                    передаются в отдельных полях с именем "file".
+      responses:
+        "200":
+          description: Обновлённый пост
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostResponseDto"
+  /posts/get-user-posts:
+    get:
+      summary: Получить посты текущего пользователя
+      tags:
+        - Posts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "10"
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "0"
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+            example: DESC
+      responses:
+        "200":
+          description: Список постов пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostsResponseDto"

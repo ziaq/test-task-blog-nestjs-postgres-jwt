@@ -4,6 +4,7 @@ export type Config = {
   serverPort: number;
   clientIp: string;
   clientPort: number;
+  openApiHost: string;
   postgresSettings: {
     host: string;
     port: number;

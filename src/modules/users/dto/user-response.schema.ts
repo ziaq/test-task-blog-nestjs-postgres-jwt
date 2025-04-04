@@ -9,6 +9,6 @@ export const userResponseSchema = z.object({
   birthDate: z.coerce.date().nullable(),
   about: z.string().nullable(),
   avatar: z.string().nullable(),
-});
+}).strict();
 
 export type UserResponseDto = z.infer<typeof userResponseSchema>;

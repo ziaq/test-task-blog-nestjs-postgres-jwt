@@ -8,6 +8,6 @@ export const createUserSchema = z.object({
   phone: z.string().optional(),
   birthDate: z.coerce.date().optional(),
   about: z.string().optional(),
-});
+}).strict();
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;

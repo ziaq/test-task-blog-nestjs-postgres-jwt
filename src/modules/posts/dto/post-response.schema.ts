@@ -11,6 +11,6 @@ export const postResponseSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   images: z.array(postImageSchema),
-});
+}).strict();
 
 export type PostResponseDto = z.infer<typeof postResponseSchema>;

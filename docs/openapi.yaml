@@ -4,7 +4,7 @@ info:
   description: "Documentation for endpoints "
   version: 1.0.0
 servers:
-  - url: http://localhost:3002
+  - url: http://localhost:3001
 components:
   securitySchemes:
     bearerAuth:
@@ -41,6 +41,16 @@ components:
         - password
         - fingerprint
       additionalProperties: false
+    LogoutResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Сообщение об успешном выходе
+          example: Logged out successfully
+      required:
+        - message
+      additionalProperties: false
     AccessTokenResponseDto:
       type: object
       properties:
@@ -50,6 +60,7 @@ components:
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       required:
         - accessToken
+      additionalProperties: false
     RegisterDto:
       type: object
       properties:
@@ -143,6 +154,7 @@ components:
         - password
         - firstName
         - lastName
+      additionalProperties: false
     UpdateUserDto:
       type: object
       properties:
@@ -229,6 +241,7 @@ components:
         - birthDate
         - about
         - avatar
+      additionalProperties: false
     CreatePostDto:
       type: object
       properties:
@@ -297,6 +310,7 @@ components:
         - createdAt
         - updatedAt
         - images
+      additionalProperties: false
     PostsResponseDto:
       type: array
       items:
@@ -330,6 +344,7 @@ components:
           - createdAt
           - updatedAt
           - images
+        additionalProperties: false
   parameters: {}
 paths:
   /auth/register:
@@ -365,14 +380,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LoginResponseDto"
+                $ref: "#/components/schemas/AccessTokenResponseDto"
   /auth/logout:
     post:
       summary: Выход пользователя и удаление refresh токена
+      description: Нужно передать `refreshToken` в cookie
       tags:
         - Auth
-      security:
-        - bearerAuth: []
       responses:
         "200":
           description: Успешный выход
@@ -383,14 +397,10 @@ paths:
   /auth/refresh:
     post:
       summary: Обновить access и refresh токен
-      description: Refresh токен передаётся в cookie `refreshToken`, а новый также
-        устанавливается в cookie
+      description: Нужно передать `refreshToken` в cookie
       tags:
         - Auth
-      security:
-        - bearerAuth: []
       requestBody:
-        description: Fingerprint обязателен. Refresh токен берётся из cookie.
         content:
           application/json:
             schema:

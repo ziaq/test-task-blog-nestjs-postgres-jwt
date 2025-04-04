@@ -5,13 +5,10 @@ export function registerAuthRefreshPath() {
     method: 'post',
     path: '/auth/refresh',
     summary: 'Обновить access и refresh токен',
-    description:
-      'Refresh токен передаётся в cookie `refreshToken`, а новый также устанавливается в cookie',
+    description: 'Нужно передать `refreshToken` в cookie',
     tags: ['Auth'],
-    security: [{ bearerAuth: [] }],
     request: {
       body: {
-        description: 'Fingerprint обязателен. Refresh токен берётся из cookie.',
         content: {
           'application/json': {
             schema: { $ref: '#/components/schemas/RefreshTokenDto' },

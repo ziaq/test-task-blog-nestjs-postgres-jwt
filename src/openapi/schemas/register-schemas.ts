@@ -2,6 +2,7 @@ import { registry } from '../registry';
 
 import { accessTokenResponseSchema } from './auth/access-token-response.openapi';
 import { loginOpenApiSchema } from './auth/login.schema';
+import { logoutResponseOpenApiSchema } from './auth/logout-response.openapi';
 import { refreshTokenOpenApiSchema } from './auth/refresh-token.openapi';
 import { registerOpenApiSchema } from './auth/register.openapi';
 import { createPostOpenApiSchema } from './posts/create-post.openapi';
@@ -14,6 +15,7 @@ import { userResponseOpenApiSchema } from './profile/user-response.openapi';
 
 export function registerSchemas() {
   registry.register('LoginDto', loginOpenApiSchema);
+  registry.register('LogoutResponseDto', logoutResponseOpenApiSchema);
   registry.register('AccessTokenResponseDto', accessTokenResponseSchema);
   registry.register('RegisterDto', registerOpenApiSchema);
   registry.register('RefreshTokenDto', refreshTokenOpenApiSchema);

@@ -21,6 +21,11 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { UserId } from '../common/user-id.decorator';
 
 import { CreatePostDto, createPostSchema } from './dto/create-post.schema';
+import {
+  GetUserPostsQueryDto,
+  getUserPostsQuerySchema,
+} from './dto/get-user-posts.query.schema';
+import { PostIdParamDto, postIdParamSchema } from './dto/post-id.param.schema';
 import { PostResponseDto } from './dto/post-response.schema';
 import { PostsResponseDto } from './dto/posts-response.schema';
 import { UpdatePostDto, updatePostSchema } from './dto/update-post.schema';
@@ -34,11 +39,10 @@ export class PostsController {
   @Get('get-user-posts')
   getUserPosts(
     @UserId() userId: number,
-    @Query('limit') limit = '10',
-    @Query('offset') offset = '0',
-    @Query('sort') sort: 'ASC' | 'DESC' = 'DESC',
+    @Query(new ZodValidationPipe(getUserPostsQuerySchema))
+    query: GetUserPostsQueryDto,
   ): Promise<PostsResponseDto> {
-    return this.postsService.findUserPosts(userId, +limit, +offset, sort);
+    return this.postsService.findUserPosts(userId, query);
   }
 
   @Post('create-post')
@@ -56,17 +60,19 @@ export class PostsController {
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('file', 10, multerOptions))
   update(
-    @Param('id') id: string,
+    @Param(new ZodValidationPipe(postIdParamSchema)) params: PostIdParamDto,
     @Body(new ZodValidationPipe(updatePostSchema)) body: UpdatePostDto,
     @UploadedFiles(new ImageValidationAndStoragePipe('post-images'))
     files?: Express.Multer.File[],
   ): Promise<PostResponseDto> {
-    return this.postsService.update(+id, body, files);
+    return this.postsService.update(params.id, body, files);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  delete(@Param('id') id: string) {
-    return this.postsService.delete(+id);
+  delete(
+    @Param(new ZodValidationPipe(postIdParamSchema)) params: PostIdParamDto,
+  ) {
+    return this.postsService.delete(params.id);
   }
 }

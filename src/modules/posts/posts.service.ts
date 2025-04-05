@@ -5,6 +5,7 @@ import { In, Repository } from 'typeorm';
 import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
 
 import { CreatePostDto } from './dto/create-post.schema';
+import { GetUserPostsQueryDto } from './dto/get-user-posts.query.schema';
 import {
   PostResponseDto,
   postResponseSchema,
@@ -26,10 +27,10 @@ export class PostsService {
 
   async findUserPosts(
     userId: number,
-    limit: number,
-    offset: number,
-    sort: 'ASC' | 'DESC',
+    query: GetUserPostsQueryDto,
   ): Promise<PostsResponseDto> {
+    const { sort, offset, limit } = query;
+
     const posts = await this.postRepo.find({
       where: { user: { id: userId } },
       order: { createdAt: sort },

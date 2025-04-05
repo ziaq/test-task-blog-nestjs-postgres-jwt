@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -65,6 +66,17 @@ export class PostsController {
     @UploadedFiles(new ImageValidationAndStoragePipe('post-images'))
     files?: Express.Multer.File[],
   ): Promise<PostResponseDto> {
+    const noText = body.text === undefined;
+    const noImagesToDelete =
+      !body.deleteImageIds || body.deleteImageIds.length === 0;
+    const noFiles = !files || files.length === 0;
+
+    if (noText && noImagesToDelete && noFiles) {
+      throw new BadRequestException(
+        'At least one field must be provided to update the post',
+      );
+    }
+
     return this.postsService.update(params.id, body, files);
   }
 

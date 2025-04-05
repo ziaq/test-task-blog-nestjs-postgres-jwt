@@ -24,6 +24,12 @@ export function registerAuthRegisterPath() {
           },
         },
       },
+      400: {
+        description: 'Невалидные данные',
+      },
+      409: {
+        description: 'Пользователь с таким email уже существует',
+      },
     },
   });
 }

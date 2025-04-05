@@ -11,23 +11,25 @@ export function registerGetUserPostsPath() {
       {
         name: 'limit',
         in: 'query',
-        required: false,
-        schema: { type: 'string', example: '10' },
+        required: true,
+        schema: {
+          $ref: '#/components/schemas/GetUserPostsQueryDto/properties/limit',
+        },
       },
       {
         name: 'offset',
         in: 'query',
-        required: false,
-        schema: { type: 'string', example: '0' },
+        required: true,
+        schema: {
+          $ref: '#/components/schemas/GetUserPostsQueryDto/properties/offset',
+        },
       },
       {
         name: 'sort',
         in: 'query',
-        required: false,
+        required: true,
         schema: {
-          type: 'string',
-          enum: ['ASC', 'DESC'],
-          example: 'DESC',
+          $ref: '#/components/schemas/GetUserPostsQueryDto/properties/sort',
         },
       },
     ],
@@ -39,6 +41,10 @@ export function registerGetUserPostsPath() {
             schema: { $ref: '#/components/schemas/PostsResponseDto' },
           },
         },
+      },
+      401: {
+        description:
+          'Пользователь не авторизован (access token не передан или недействителен)',
       },
     },
   });

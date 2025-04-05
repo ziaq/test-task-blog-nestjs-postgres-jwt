@@ -38,6 +38,13 @@ export function registerUploadAvatarPath() {
           },
         },
       },
+      400: {
+        description: 'Невалидные данные',
+      },
+      401: {
+        description:
+          'Пользователь не авторизован (access token не передан или недействителен)',
+      },
     },
   });
 }

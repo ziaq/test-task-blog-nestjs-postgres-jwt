@@ -6,6 +6,8 @@ import { logoutResponseOpenApiSchema } from './auth/logout-response.openapi';
 import { refreshTokenOpenApiSchema } from './auth/refresh-token.openapi';
 import { registerOpenApiSchema } from './auth/register.openapi';
 import { createPostOpenApiSchema } from './posts/create-post.openapi';
+import { getUserPostsQueryOpenApiSchema } from './posts/get-user-posts.query.openapi';
+import { postIdParamOpenApiSchema } from './posts/post-id.param.openapi';
 import { postResponseOpenApiSchema } from './posts/post-response.openapi';
 import { postsResponseOpenApiSchema } from './posts/posts-response.openapi';
 import { updatePostOpenApiSchema } from './posts/update-post.openapi';
@@ -28,4 +30,6 @@ export function registerSchemas() {
   registry.register('UpdatePostDto', updatePostOpenApiSchema);
   registry.register('PostResponseDto', postResponseOpenApiSchema);
   registry.register('PostsResponseDto', postsResponseOpenApiSchema);
+  registry.register('PostIdParamDto', postIdParamOpenApiSchema);
+  registry.register('GetUserPostsQueryDto', getUserPostsQueryOpenApiSchema);
 }

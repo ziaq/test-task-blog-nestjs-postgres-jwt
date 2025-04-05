@@ -46,6 +46,16 @@ export function registerCreatePostPath() {
           },
         },
       },
+      400: {
+        description: 'Невалидные данные',
+      },
+      401: {
+        description:
+          'Пользователь не авторизован (access token не передан или недействителен)',
+      },
+      404: {
+        description: 'Пост не найден',
+      },
     },
   });
 }

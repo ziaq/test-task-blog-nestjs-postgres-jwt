@@ -18,6 +18,10 @@ export function registerGetProfilePath() {
           },
         },
       },
+      401: {
+        description:
+          'Пользователь не авторизован (access token не передан или недействителен)',
+      },
     },
   });
 }

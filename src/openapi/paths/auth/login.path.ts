@@ -24,6 +24,12 @@ export function registerAuthLoginPath() {
           },
         },
       },
+      400: {
+        description: 'Невалидные данные',
+      },
+      401: {
+        description: 'Неверный email или пароль',
+      },
     },
   });
 }

@@ -345,6 +345,45 @@ components:
           - updatedAt
           - images
         additionalProperties: false
+    PostIdParamDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: ID поста
+          example: 42
+      required:
+        - id
+      additionalProperties: false
+    GetUserPostsQueryDto:
+      type: object
+      properties:
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Максимальное количество постов для получения
+          example: 10
+        offset:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Смещение для пагинации
+          example: 0
+        sort:
+          type: string
+          enum:
+            - ASC
+            - DESC
+          description: Сортировка по дате создания
+          example: DESC
+      required:
+        - limit
+        - offset
+        - sort
+      additionalProperties: false
   parameters: {}
 paths:
   /auth/register:
@@ -364,6 +403,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: Невалидные данные
+        "409":
+          description: Пользователь с таким email уже существует
   /auth/login:
     post:
       summary: Аутентификация пользователя
@@ -381,6 +424,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccessTokenResponseDto"
+        "400":
+          description: Невалидные данные
+        "401":
+          description: Неверный email или пароль
   /auth/logout:
     post:
       summary: Выход пользователя и удаление refresh токена
@@ -394,6 +441,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/LogoutResponseDto"
+        "401":
+          description: Отсутствует или невалиден refresh токен
   /auth/refresh:
     post:
       summary: Обновить access и refresh токен
@@ -419,6 +468,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccessTokenResponseDto"
+        "400":
+          description: Невалидные данные
+        "401":
+          description: Отсутствует или невалиден refresh токен
   /profile:
     get:
       summary: Получить профиль текущего пользователя
@@ -433,6 +486,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserResponseDto"
+        "401":
+          description: Пользователь не авторизован (access token не передан или
+            недействителен)
     patch:
       summary: Обновить профиль текущего пользователя
       tags:
@@ -451,6 +507,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: Невалидные данные
+        "401":
+          description: Пользователь не авторизован (access token не передан или
+            недействителен)
   /profile/upload-avatar:
     post:
       summary: Загрузить новый аватар пользователя
@@ -478,6 +539,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserResponseDto"
+        "400":
+          description: Невалидные данные
+        "401":
+          description: Пользователь не авторизован (access token не передан или
+            недействителен)
   /posts/create-post:
     post:
       summary: Создать новый пост
@@ -512,6 +578,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PostResponseDto"
+        "400":
+          description: Невалидные данные
+        "401":
+          description: Пользователь не авторизован (access token не передан или
+            недействителен)
+        "404":
+          description: Пост не найден
   /posts/{id}:
     delete:
       summary: Удалить пост
@@ -524,11 +597,17 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: "1"
+            $ref: "#/components/schemas/PostIdParamDto/properties/id"
       responses:
         "204":
           description: Пост успешно удалён. Тело ответа отсутствует.
+        "400":
+          description: Невалидные данные
+        "401":
+          description: Пользователь не авторизован (access token не передан или
+            недействителен)
+        "404":
+          description: Пост не найден
     patch:
       summary: Обновить пост
       tags:
@@ -540,8 +619,7 @@ paths:
           in: path
           required: true
           schema:
-            type: string
-            example: "1"
+            $ref: "#/components/schemas/PostIdParamDto/properties/id"
       requestBody:
         required: true
         content:
@@ -571,6 +649,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PostResponseDto"
+        "400":
+          description: Невалидные данные (Все поля пустые)
+        "401":
+          description: Пользователь не авторизован (access token не передан или
+            недействителен)
+        "404":
+          description: Пост не найден
   /posts/get-user-posts:
     get:
       summary: Получить посты текущего пользователя
@@ -581,25 +666,19 @@ paths:
       parameters:
         - name: limit
           in: query
-          required: false
+          required: true
           schema:
-            type: string
-            example: "10"
+            $ref: "#/components/schemas/GetUserPostsQueryDto/properties/limit"
         - name: offset
           in: query
-          required: false
+          required: true
           schema:
-            type: string
-            example: "0"
+            $ref: "#/components/schemas/GetUserPostsQueryDto/properties/offset"
         - name: sort
           in: query
-          required: false
+          required: true
           schema:
-            type: string
-            enum:
-              - ASC
-              - DESC
-            example: DESC
+            $ref: "#/components/schemas/GetUserPostsQueryDto/properties/sort"
       responses:
         "200":
           description: Список постов пользователя
@@ -607,3 +686,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PostsResponseDto"
+        "401":
+          description: Пользователь не авторизован (access token не передан или
+            недействителен)

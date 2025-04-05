@@ -16,6 +16,9 @@ export function registerAuthLogoutPath() {
           },
         },
       },
+      401: {
+        description: 'Отсутствует или невалиден refresh токен',
+      },
     },
   });
 }

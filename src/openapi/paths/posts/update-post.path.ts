@@ -12,7 +12,7 @@ export function registerUpdatePostPath() {
         name: 'id',
         in: 'path',
         required: true,
-        schema: { type: 'string', example: '1' },
+        schema: { $ref: '#/components/schemas/PostIdParamDto/properties/id' },
       },
     ],
     request: {
@@ -50,6 +50,16 @@ export function registerUpdatePostPath() {
             schema: { $ref: '#/components/schemas/PostResponseDto' },
           },
         },
+      },
+      400: {
+        description: 'Невалидные данные (Все поля пустые)',
+      },
+      401: {
+        description:
+          'Пользователь не авторизован (access token не передан или недействителен)',
+      },
+      404: {
+        description: 'Пост не найден',
       },
     },
   });

@@ -36,6 +36,12 @@ export function registerAuthRefreshPath() {
           },
         },
       },
+      400: {
+        description: 'Невалидные данные',
+      },
+      401: {
+        description: 'Отсутствует или невалиден refresh токен',
+      },
     },
   });
 }

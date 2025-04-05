@@ -13,14 +13,23 @@ export function registerDeletePostPath() {
         in: 'path',
         required: true,
         schema: {
-          type: 'string',
-          example: '1',
+          $ref: '#/components/schemas/PostIdParamDto/properties/id',
         },
       },
     ],
     responses: {
       204: {
         description: 'Пост успешно удалён. Тело ответа отсутствует.',
+      },
+      400: {
+        description: 'Невалидные данные',
+      },
+      401: {
+        description:
+          'Пользователь не авторизован (access token не передан или недействителен)',
+      },
+      404: {
+        description: 'Пост не найден',
       },
     },
   });

@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
 import { logoutResponseSchema as baseSchema } from '../../../modules/auth/dto/logout-response.schema';
+
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 
 extendZodWithOpenApi(z);
 

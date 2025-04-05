@@ -13,6 +13,7 @@ import { UsersService } from '../users/users.service';
 
 import { RegisterDto } from './dto/register.schema';
 import { RefreshSession } from './entities/refresh-session.entity';
+import { getRefreshTokenExpiration } from './utils/get-refresh-token-expiration';
 
 @Injectable()
 export class AuthService {
@@ -71,7 +72,7 @@ export class AuthService {
     fingerprint: string,
   ): Promise<void> {
     const hash = await bcrypt.hash(refreshToken, 10);
-    const expiresAt = this.getRefreshExpirationDate();
+    const expiresAt = getRefreshTokenExpiration();
 
     await this.refreshRepo.delete({ userId, fingerprint });
 
@@ -83,12 +84,6 @@ export class AuthService {
     });
 
     await this.refreshRepo.save(session);
-  }
-
-  getRefreshExpirationDate(): Date {
-    const days = 30;
-    const ms = days * 24 * 60 * 60 * 1000;
-    return new Date(Date.now() + ms);
   }
 
   async validateRefreshToken(

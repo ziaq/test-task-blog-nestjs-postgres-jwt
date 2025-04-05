@@ -11,6 +11,7 @@ import {
   userResponseSchema,
 } from './dto/user-response.schema';
 import { User } from './entities/user.entity';
+import { sanitizeUser } from './utils/sanitize-user';
 
 @Injectable()
 export class UsersService {
@@ -18,17 +19,30 @@ export class UsersService {
 
   async createUser(data: CreateUserDto): Promise<UserResponseDto> {
     const user = await this.userRepo.save(data);
+    const sanitizedUser = sanitizeUser(user);
 
-    const { password: _, ...safeUser } = user;
-    return userResponseSchema.parse(safeUser);
+    return userResponseSchema.parse(sanitizedUser);
   }
 
   async findById(id: number): Promise<UserResponseDto> {
-    const user = await this.userRepo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({ 
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        birthDate: true,
+        about: true,
+        avatar: true,
+      },
+    });
     if (!user) throw new NotFoundException('User not found');
 
-    const { password: _, ...safeUser } = user;
-    return userResponseSchema.parse(safeUser);
+    const sanitizedUser = sanitizeUser(user);
+    
+    return userResponseSchema.parse(sanitizedUser);
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -49,9 +63,10 @@ export class UsersService {
     if (user.avatar) deleteUploadedFile('avatars', user.avatar);
 
     user.avatar = filename;
-    const updatedUser = await this.userRepo.save(user);
 
-    const { password: _, ...safeUser } = updatedUser;
-    return userResponseSchema.parse(safeUser);
+    const updatedUser = await this.userRepo.save(user);
+    const sanitizedUpdatedUser = sanitizeUser(updatedUser);
+
+    return userResponseSchema.parse(sanitizedUpdatedUser);
   }
 }

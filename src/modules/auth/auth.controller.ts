@@ -31,6 +31,7 @@ import { RegisterDto, registerSchema } from './dto/register.schema';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { ReqWithCookie } from './types/req-with-cookie.type';
 import { AuthService } from './auth.service';
+import { getRefreshTokenExpiration } from './utils/get-refresh-token-expiration';
 
 @Controller('auth')
 export class AuthController {
@@ -118,7 +119,7 @@ export class AuthController {
       httpOnly: true,
       sameSite: 'strict',
       secure: true,
-      expires: this.authService.getRefreshExpirationDate(),
+      expires: getRefreshTokenExpiration(),
     });
 
     return { accessToken };

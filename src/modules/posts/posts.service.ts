@@ -1,9 +1,14 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
 import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
 
+import { WITH_IMAGES, WITH_IMAGES_AND_USER } from './constants/relations.const';
 import { CreatePostDto } from './dto/create-post.schema';
 import { GetUserPostsQueryDto } from './dto/get-user-posts.query.schema';
 import {
@@ -18,7 +23,6 @@ import { UpdatePostDto } from './dto/update-post.schema';
 import { Post } from './entities/post.entity';
 import { PostImage } from './entities/post-image.entity';
 import { omitUser } from './utils/omit-user';
-import { WITH_IMAGES, WITH_IMAGES_AND_USER } from './constants/relations.const';
 
 @Injectable()
 export class PostsService {
@@ -77,17 +81,17 @@ export class PostsService {
     ids: number | number[],
   ): Promise<void> {
     const idsArray = Array.isArray(ids) ? ids : [ids];
-  
+
     const images = await this.imageRepo.find({
       where: { id: In(idsArray) },
       relations: ['post'],
     });
-  
+
     const invalid = images.find((img) => img.post.id !== postId);
     if (invalid) {
       throw new ForbiddenException('Some images do not belong to this post');
     }
-  
+
     const filenames = images.map((img) => img.filename);
     filenames.forEach((name) => deleteUploadedFile('post-images', name));
     await this.imageRepo.delete(idsArray);

@@ -26,7 +26,7 @@ export function registerUpdatePostPath() {
                 text: { type: 'string', example: 'Обновлённый текст' },
                 deleteImageIds: {
                   type: 'string',
-                  example: [1,2],
+                  example: [1, 2],
                   description:
                     'Массив id изображений, которые нужно удалить. Каждый id вписывать в отдельное поле deleteImageIds, на бэкенде он автоматически соберется в массив чисел. Пример: [23, 56, 79]',
                 },
@@ -59,7 +59,8 @@ export function registerUpdatePostPath() {
           'Пользователь не авторизован (access token не передан или недействителен)',
       },
       403: {
-        description: 'Доступ запрещён: пользователь не является владельцем поста',
+        description:
+          'Доступ запрещён: пользователь не является владельцем поста',
       },
       404: {
         description: 'Пост не найден',

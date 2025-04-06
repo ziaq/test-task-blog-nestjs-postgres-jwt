@@ -30,8 +30,8 @@ import {
 import { RegisterDto, registerSchema } from './dto/register.schema';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { ReqWithCookie } from './types/req-with-cookie.type';
-import { AuthService } from './auth.service';
 import { getRefreshTokenExpiration } from './utils/get-refresh-token-expiration';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -56,10 +56,10 @@ export class AuthController {
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const { 
-      accessToken, 
-      refreshToken, 
-    } = await this.authService.generateTokens(user.id, fingerprint);
+    const { accessToken, refreshToken } = await this.authService.generateTokens(
+      user.id,
+      fingerprint,
+    );
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -103,10 +103,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Body(new ZodValidationPipe(refreshTokenSchema)) body: RefreshTokenDto,
   ): Promise<AccessTokenResponseDto> {
-    const { 
-      accessToken, 
-      refreshToken 
-    } = await this.authService.generateTokens(userId, body.fingerprint);
+    const { accessToken, refreshToken } = await this.authService.generateTokens(
+      userId,
+      body.fingerprint,
+    );
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,

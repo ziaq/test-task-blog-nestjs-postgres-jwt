@@ -1,5 +1,8 @@
+import {
+  UserResponseDto,
+  userResponseSchema,
+} from '../dto/user-response.schema';
 import { User } from '../entities/user.entity';
-import { userResponseSchema, UserResponseDto } from '../dto/user-response.schema';
 
 export function sanitizeUser(user: User): UserResponseDto {
   const safeUser = {

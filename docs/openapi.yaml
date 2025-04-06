@@ -177,8 +177,7 @@ components:
           example: "+79998887766"
         birthDate:
           type: string
-          maxLength: 100
-          format: date-time
+          nullable: true
           description: Дата рождения
           example: 2000-01-01T00:00:00.000Z
         email:
@@ -267,8 +266,12 @@ components:
           type: array
           items:
             type: number
-          description: JSON-массив ID изображений, которые нужно удалить
-          example: "[1, 2, 3]"
+            nullable: true
+          description: Массив ID изображений, которые нужно удалить
+          example:
+            - 1
+            - 2
+            - 3
       additionalProperties: false
     PostResponseDto:
       type: object
@@ -606,6 +609,8 @@ paths:
         "401":
           description: Пользователь не авторизован (access token не передан или
             недействителен)
+        "403":
+          description: "Доступ запрещён: пользователь не является владельцем поста"
         "404":
           description: Пост не найден
     patch:
@@ -632,9 +637,12 @@ paths:
                   example: Обновлённый текст
                 deleteImageIds:
                   type: string
-                  example: "[1,2]"
-                  description: "Массив id изображений, которые нужно удалить. Пример: [23, 56,
-                    79]"
+                  example:
+                    - 1
+                    - 2
+                  description: "Массив id изображений, которые нужно удалить. Каждый id вписывать
+                    в отдельное поле deleteImageIds, на бэкенде он автоматически
+                    соберется в массив чисел. Пример: [23, 56, 79]"
                 file:
                   type: array
                   items:
@@ -654,6 +662,8 @@ paths:
         "401":
           description: Пользователь не авторизован (access token не передан или
             недействителен)
+        "403":
+          description: "Доступ запрещён: пользователь не является владельцем поста"
         "404":
           description: Пост не найден
   /posts/get-user-posts:

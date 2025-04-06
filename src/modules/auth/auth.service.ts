@@ -40,9 +40,9 @@ export class AuthService {
   }
 
   async generateTokens(
-    userId: number, 
+    userId: number,
     fingerprint: string,
-  ): Promise<{ accessToken: string, refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const accessToken = this.jwt.sign(
       { sub: userId },
       {
@@ -59,11 +59,7 @@ export class AuthService {
       },
     );
 
-    await this.storeRefreshToken(
-      userId,
-      refreshToken,
-      fingerprint,
-    );
+    await this.storeRefreshToken(userId, refreshToken, fingerprint);
 
     return { accessToken, refreshToken };
   }

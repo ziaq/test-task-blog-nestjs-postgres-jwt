@@ -1,13 +1,13 @@
-import type { PostResponseDto } from "../dto/post-response.schema"
-import { Post } from '../entities/post.entity'
+import type { PostResponseDto } from '../dto/post-response.schema';
+import { Post } from '../entities/post.entity';
 
 export function omitUser(
-  data: Post | Post[] 
+  data: Post | Post[],
 ): PostResponseDto | PostResponseDto[] {
   if (Array.isArray(data)) {
-    return data.map(({ user, ...rest }) => rest)
+    return data.map(({ user: _, ...rest }) => rest);
   }
 
-  const { user, ...rest } = data
-  return rest
+  const { user: _, ...rest } = data;
+  return rest;
 }

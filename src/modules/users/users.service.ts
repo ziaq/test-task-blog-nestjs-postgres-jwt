@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -25,12 +29,12 @@ export class UsersService {
 
     const user = await this.userRepo.save(data);
     const sanitizedUser = sanitizeUser(user);
-  
+
     return userResponseSchema.parse(sanitizedUser);
   }
 
   async findById(id: number): Promise<UserResponseDto> {
-    const user = await this.userRepo.findOne({ 
+    const user = await this.userRepo.findOne({
       where: { id },
       select: {
         id: true,
@@ -46,16 +50,17 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
 
     const sanitizedUser = sanitizeUser(user);
-    
+
     return userResponseSchema.parse(sanitizedUser);
   }
 
   async update(id: number, dto: UpdateUserDto): Promise<UserResponseDto> {
     if (dto.email) {
       const user = await this.findByEmail(dto.email);
-      if (user && user.id !== id) throw new ConflictException('User with this email already exists');
+      if (user && user.id !== id)
+        throw new ConflictException('User with this email already exists');
     }
-  
+
     await this.userRepo.update(id, dto);
     return this.findById(id);
   }

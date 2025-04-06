@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,29 +29,25 @@ export class AuthService {
     this.config = getConfig(configService);
   }
 
-  async createUser(data: RegisterDto): Promise<UserResponseDto> {
-    const email = await this.usersService.findByEmail(data.email);
-    if (email)
-      throw new ConflictException('User with this email already exists');
-
+  async registerUser(data: RegisterDto): Promise<UserResponseDto> {
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    const safeUser = await this.usersService.createUser({
+    const sanitizedUser = await this.usersService.createUser({
       ...data,
       password: hashedPassword,
     });
 
-    return safeUser;
+    return sanitizedUser;
   }
 
-  generateTokens(userId: number): {
-    accessToken: string;
-    refreshToken: string;
-  } {
+  async generateTokens(
+    userId: number, 
+    fingerprint: string,
+  ): Promise<{ accessToken: string, refreshToken: string }> {
     const accessToken = this.jwt.sign(
       { sub: userId },
       {
         secret: this.config.jwtAccessSecret,
-        expiresIn: '15m',
+        expiresIn: '30m',
       },
     );
 
@@ -63,10 +59,16 @@ export class AuthService {
       },
     );
 
+    await this.storeRefreshToken(
+      userId,
+      refreshToken,
+      fingerprint,
+    );
+
     return { accessToken, refreshToken };
   }
 
-  async storeRefreshToken(
+  private async storeRefreshToken(
     userId: number,
     refreshToken: string,
     fingerprint: string,

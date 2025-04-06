@@ -1,10 +1,9 @@
 export type Config = {
   nodeEnv: 'development' | 'production';
-  serverIp: string;
+  serverHost: string;
   serverPort: number;
-  clientIp: string;
-  clientPort: number;
-  openApiHost: string;
+  openApiUrl: string;
+  clientUrl: string;
   postgresSettings: {
     host: string;
     port: number;

@@ -22,11 +22,11 @@ async function bootstrap() {
   app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
   app.enableCors({
-    origin: `http://${config.clientIp}:${config.clientPort}`,
+    origin: config.clientUrl,
     credentials: true,
   });
 
-  await app.listen(config.serverPort, config.serverIp);
-  console.log(`Server is running on ${config.serverIp}:${config.serverPort}`);
+  await app.listen(config.serverPort, config.serverHost);
+  console.log(`Server is running on ${config.serverHost}:${config.serverPort}`);
 }
 void bootstrap();

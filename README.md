@@ -44,8 +44,8 @@
 
 - 📁 **Файл OpenAPI**: `docs/openapi.yaml`
 - 🌐 **Интерактивная документация (Swagger UI)**:  
-  доступна по адресу: `http://<OPENAPI_HOST>:<SERVER_POR>/api` после запуска проекта  
-  (где `<OPENAPI_HOST>` и `<SERVER_PORT>` берутся из `.env`, например: `http://localhost:3001/api`)
+  доступна по адресу: `<OPENAPI_URL>/api` после запуска проекта  
+  (где `<OPENAPI_URL>` берется из `.env``)
 
 ### 🖼 Получение изображений
 
@@ -72,9 +72,8 @@ cd nest-auth-api
 NODE_ENV=development
 SERVER_IP=0.0.0.0
 SERVER_PORT=3001
-CLIENT_IP=localhost
-CLIENT_PORT=5171
-OPENAPI_HOST=localhost
+OPENAPI_URL=http://localhost:3001
+CLIENT_URL=http://localhost:5171
 
 POSTGRES_HOST=postgres
 POSTGRES_PORT=5432

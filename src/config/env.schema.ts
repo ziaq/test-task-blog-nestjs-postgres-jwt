@@ -2,11 +2,10 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production']),
-  SERVER_IP: z.string(),
+  SERVER_HOST: z.string(),
   SERVER_PORT: z.coerce.number(),
-  CLIENT_IP: z.string(),
-  CLIENT_PORT: z.coerce.number(),
-  OPENAPI_HOST: z.string(),
+  OPENAPI_URL: z.string(),
+  CLIENT_URL: z.string(),
   POSTGRES_HOST: z.string(),
   POSTGRES_PORT: z.coerce.number(),
   POSTGRES_USERNAME: z.string(),

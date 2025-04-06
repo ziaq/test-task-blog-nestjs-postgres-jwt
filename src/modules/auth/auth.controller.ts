@@ -42,7 +42,7 @@ export class AuthController {
   async register(
     @Body(new ZodValidationPipe(registerSchema)) body: RegisterDto,
   ): Promise<UserResponseDto> {
-    const user = await this.authService.createUser(body);
+    const user = await this.authService.registerUser(body);
     return user;
   }
 
@@ -56,20 +56,16 @@ export class AuthController {
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const { accessToken, refreshToken } = this.authService.generateTokens(
-      user.id,
-    );
-
-    await this.authService.storeRefreshToken(
-      user.id,
-      refreshToken,
-      fingerprint,
-    );
+    const { 
+      accessToken, 
+      refreshToken, 
+    } = await this.authService.generateTokens(user.id, fingerprint);
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       secure: true,
+      expires: getRefreshTokenExpiration(),
     });
 
     return accessTokenResponseSchema.parse({ accessToken });
@@ -91,7 +87,7 @@ export class AuthController {
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       secure: true,
     });
 
@@ -107,17 +103,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Body(new ZodValidationPipe(refreshTokenSchema)) body: RefreshTokenDto,
   ): Promise<AccessTokenResponseDto> {
-    const { accessToken, refreshToken } =
-      this.authService.generateTokens(userId);
-    await this.authService.storeRefreshToken(
-      userId,
-      refreshToken,
-      body.fingerprint,
-    );
+    const { 
+      accessToken, 
+      refreshToken 
+    } = await this.authService.generateTokens(userId, body.fingerprint);
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       secure: true,
       expires: getRefreshTokenExpiration(),
     });

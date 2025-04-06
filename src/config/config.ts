@@ -9,11 +9,10 @@ export default registerAs(CONFIG, (): Config => {
 
   return {
     nodeEnv: env.NODE_ENV,
-    serverIp: env.SERVER_IP,
+    serverHost: env.SERVER_HOST,
     serverPort: env.SERVER_PORT,
-    clientIp: env.CLIENT_IP,
-    clientPort: env.CLIENT_PORT,
-    openApiHost: env.OPENAPI_HOST,
+    openApiUrl: env.OPENAPI_URL,
+    clientUrl: env.CLIENT_URL,
     postgresSettings: {
       host: env.POSTGRES_HOST,
       port: env.POSTGRES_PORT,

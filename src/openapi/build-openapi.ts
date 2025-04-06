@@ -24,7 +24,7 @@ export function buildOpenApi(config: Config, saveToDisk = true) {
       description: 'Documentation for endpoints ',
       version: '1.0.0',
     },
-    servers: [{ url: `http://${config.openApiHost}:${config.serverPort}` }],
+    servers: [{ url: config.openApiUrl }],
   });
 
   if (saveToDisk) {

@@ -61,30 +61,27 @@ export class PostsController {
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('file', 10, multerOptions))
   update(
+    @UserId() userId: number,
     @Param(new ZodValidationPipe(postIdParamSchema)) params: PostIdParamDto,
     @Body(new ZodValidationPipe(updatePostSchema)) body: UpdatePostDto,
     @UploadedFiles(new ImageValidationAndStoragePipe('post-images'))
     files?: Express.Multer.File[],
   ): Promise<PostResponseDto> {
-    const noText = body.text === undefined;
-    const noImagesToDelete =
-      !body.deleteImageIds || body.deleteImageIds.length === 0;
-    const noFiles = !files || files.length === 0;
-
-    if (noText && noImagesToDelete && noFiles) {
+    if (!body.text && !body.deleteImageIds && !files) {
       throw new BadRequestException(
         'At least one field must be provided to update the post',
       );
     }
 
-    return this.postsService.update(params.id, body, files);
+    return this.postsService.update(userId, params.id, body, files);
   }
 
   @Delete(':id')
   @HttpCode(204)
   delete(
+    @UserId() userId: number,
     @Param(new ZodValidationPipe(postIdParamSchema)) params: PostIdParamDto,
   ) {
-    return this.postsService.delete(params.id);
+    return this.postsService.delete(userId, params.id);
   }
 }

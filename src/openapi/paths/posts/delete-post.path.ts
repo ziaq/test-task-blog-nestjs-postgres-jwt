@@ -28,6 +28,9 @@ export function registerDeletePostPath() {
         description:
           'Пользователь не авторизован (access token не передан или недействителен)',
       },
+      403: {
+        description: 'Доступ запрещён: пользователь не является владельцем поста',
+      },
       404: {
         description: 'Пост не найден',
       },

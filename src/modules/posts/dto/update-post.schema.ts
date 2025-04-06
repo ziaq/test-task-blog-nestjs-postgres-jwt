@@ -4,15 +4,10 @@ export const updatePostSchema = z
   .object({
     text: z.string().min(1).max(10_000).optional(),
     deleteImageIds: z
-      .preprocess((val) => {
-        if (typeof val !== 'string') return undefined;
-
-        try {
-          return JSON.parse(val) as unknown;
-        } catch {
-          return undefined;
-        }
-      }, z.array(z.number()))
+      .union([
+        z.coerce.number(),
+        z.array(z.coerce.number()),
+      ])
       .optional(),
   })
   .strict();

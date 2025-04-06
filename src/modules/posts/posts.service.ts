@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
@@ -17,6 +17,8 @@ import {
 import { UpdatePostDto } from './dto/update-post.schema';
 import { Post } from './entities/post.entity';
 import { PostImage } from './entities/post-image.entity';
+import { omitUser } from './utils/omit-user';
+import { WITH_IMAGES, WITH_IMAGES_AND_USER } from './constants/relations.const';
 
 @Injectable()
 export class PostsService {
@@ -36,10 +38,12 @@ export class PostsService {
       order: { createdAt: sort },
       skip: offset,
       take: limit,
-      relations: ['images'],
+      relations: WITH_IMAGES,
     });
 
-    return postsResponseSchema.parse(posts);
+    const postsWithoutUser = omitUser(posts);
+
+    return postsResponseSchema.parse(postsWithoutUser);
   }
 
   async create(
@@ -58,39 +62,60 @@ export class PostsService {
       );
     }
 
-    const postWithImages = await this.postRepo.findOneOrFail({
+    const newPost = await this.postRepo.findOneOrFail({
       where: { id: post.id },
-      relations: ['images'],
+      relations: WITH_IMAGES,
     });
 
-    return postResponseSchema.parse(postWithImages);
+    const newPostWithoutUser = omitUser(newPost);
+
+    return postResponseSchema.parse(newPostWithoutUser);
   }
 
-  private async deleteImagesByIds(ids: number[]) {
-    const images = await this.imageRepo.findBy({ id: In(ids) });
+  private async deleteImagesByIds(
+    postId: number,
+    ids: number | number[],
+  ): Promise<void> {
+    const idsArray = Array.isArray(ids) ? ids : [ids];
+  
+    const images = await this.imageRepo.find({
+      where: { id: In(idsArray) },
+      relations: ['post'],
+    });
+  
+    const invalid = images.find((img) => img.post.id !== postId);
+    if (invalid) {
+      throw new ForbiddenException('Some images do not belong to this post');
+    }
+  
     const filenames = images.map((img) => img.filename);
     filenames.forEach((name) => deleteUploadedFile('post-images', name));
-    await this.imageRepo.delete(ids);
+    await this.imageRepo.delete(idsArray);
   }
 
   async update(
+    userId: number,
     id: number,
     dto: UpdatePostDto,
     files?: Express.Multer.File[],
   ): Promise<PostResponseDto> {
     const post = await this.postRepo.findOne({
       where: { id },
-      relations: ['images'],
+      relations: WITH_IMAGES_AND_USER,
     });
     if (!post) throw new NotFoundException('Post not found');
+
+    if (post.user.id !== userId) {
+      throw new ForbiddenException('You can only edit your own posts');
+    }
 
     if (dto.text && dto.text !== post.text) {
       post.text = dto.text;
       await this.postRepo.save(post);
     }
 
-    if (dto.deleteImageIds?.length) {
-      await this.deleteImagesByIds(dto.deleteImageIds);
+    if (dto.deleteImageIds) {
+      await this.deleteImagesByIds(id, dto.deleteImageIds);
     }
 
     if (files?.length) {
@@ -101,22 +126,29 @@ export class PostsService {
 
     const updatedPost = await this.postRepo.findOne({
       where: { id: post.id },
-      relations: ['images'],
+      relations: WITH_IMAGES,
     });
+    if (!updatedPost) throw new NotFoundException('Post not found');
 
-    return postResponseSchema.parse(updatedPost);
+    const updatedPostWithoutUser = omitUser(updatedPost);
+
+    return postResponseSchema.parse(updatedPostWithoutUser);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(userId: number, id: number): Promise<void> {
     const post = await this.postRepo.findOne({
       where: { id },
-      relations: ['images'],
+      relations: WITH_IMAGES_AND_USER,
     });
     if (!post) throw new NotFoundException('Post not found');
 
+    if (post.user.id !== userId) {
+      throw new ForbiddenException('You can only delete your own posts');
+    }
+
     const imageIds = post.images?.map((img) => img.id) ?? [];
     if (imageIds.length > 0) {
-      await this.deleteImagesByIds(imageIds);
+      await this.deleteImagesByIds(id, imageIds);
     }
 
     await this.postRepo.remove(post);

@@ -14,3 +14,8 @@ export const envSchema = z.object({
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
 });
+
+export function validate(env: Record<string, unknown>) {
+  const validatedEnv = envSchema.parse(env);
+  return validatedEnv;
+}

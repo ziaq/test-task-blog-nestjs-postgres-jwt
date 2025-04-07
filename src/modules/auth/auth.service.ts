@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 
-import { Config } from '../../config/config.types';
-import { getConfig } from '../../utils/get-config';
 import { UserResponseDto } from '../users/dto/user-response.schema';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { AppConfigService } from '../../config/app-config.service';
+import { Config } from '../../config/config.types';
 
 import { RegisterDto } from './dto/register.schema';
 import { RefreshSession } from './entities/refresh-session.entity';
@@ -24,9 +23,9 @@ export class AuthService {
     @InjectRepository(RefreshSession)
     private refreshRepo: Repository<RefreshSession>,
     private usersService: UsersService,
-    configService: ConfigService,
+    appConfigService: AppConfigService
   ) {
-    this.config = getConfig(configService);
+    this.config = appConfigService.getConfig();
   }
 
   async registerUser(data: RegisterDto): Promise<UserResponseDto> {

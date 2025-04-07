@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
+import { deleteUploadedFile } from '../../lib/utils/delete-uploaded-file';
 
 import { CreateUserDto } from './dto/create-user.schema';
 import { UpdateUserDto } from './dto/update-user.schema';

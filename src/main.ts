@@ -6,15 +6,15 @@ import { join } from 'path';
 import * as swaggerUi from 'swagger-ui-express';
 
 import { buildOpenApi } from './openapi/build-openapi';
-import { getConfig } from './utils/get-config';
 import { AppModule } from './app.module';
+import { AppConfigService } from './config/app-config.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
 
-  const configService = app.get(ConfigService);
-  const config = getConfig(configService);
+  const configService = app.get(AppConfigService);
+  const config = configService.getConfig();
 
   const openApiDocument = buildOpenApi(config);
   app.use('/api', swaggerUi.serve, swaggerUi.setup(openApiDocument));

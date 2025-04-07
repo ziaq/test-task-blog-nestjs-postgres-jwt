@@ -1,10 +1,11 @@
 import { registerAs } from '@nestjs/config';
 
-import { CONFIG } from './config.constants';
 import { Config } from './config.types';
-import { envSchema } from './env.schema';
+import { envSchema } from './env.validation';
 
-export default registerAs(CONFIG, (): Config => {
+export const CONFIG = 'config';
+
+export const config = registerAs(CONFIG, (): Config => {
   const env = envSchema.parse(process.env);
 
   return {
@@ -26,3 +27,4 @@ export default registerAs(CONFIG, (): Config => {
     jwtRefreshSecret: env.JWT_REFRESH_SECRET,
   };
 });
+

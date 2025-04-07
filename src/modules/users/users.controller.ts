@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { multerOptions } from '../../config/multer.options';
+import { multerOptions } from '../../lib/multer/multer.options';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { ImageValidationAndStoragePipe } from '../common/pipes/image-validation-and-storage.pipe';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';

@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
-import { deleteUploadedFile } from '../../utils/delete-uploaded-file';
+import { deleteUploadedFile } from '../../lib/utils/delete-uploaded-file';
 
 import { WITH_IMAGES, WITH_IMAGES_AND_USER } from './constants/relations.const';
 import { CreatePostDto } from './dto/create-post.schema';

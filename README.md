@@ -1,9 +1,10 @@
 ## Тестовое задание️ REST API — NestJS + PostgreSQL + JWT
 ![Openapi preview](./readme-openapi-preview.png)
 
-Это **тестовое задание** REST API блога для работы с профилем пользователя и его постами, написанный на NestJS с использованием PostgreSQL и TypeORM.
+**Тестовое задание**  
+REST API блога для работы с профилем пользователя и его постами, написанный на NestJS с использованием PostgreSQL и TypeORM.
 
-Реализовано:  
+Включает в себя:  
 
 - REST API Аутентификации, Посты, Профиль
 - OpenAPI-документация для REST API
@@ -15,13 +16,7 @@
 - Валидация расширений изборажений по File Magic Numbers
 - Контейнеризация через Docker Compose
 
-Технологии:
-
-- NestJS
-- PostgreSQL, TypeORM
-- JWT, Zod
-- Multer, OpenAPI
-- Docker, Docker Compose
+Использовалось: NestJS, PostgreSQL, TypeORM, JWT, Zod, Multer, OpenAPI, Docker, Docker Compose
 
 ## API
 

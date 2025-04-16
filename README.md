@@ -6,17 +6,18 @@ REST API блога для работы с профилем пользовате
 
 Включает в себя:  
 
-- REST API Аутентификации, Посты, Профиль
-- OpenAPI-документация для REST API
+- REST API для Аутентификации, Постов, Профиля
+- OpenAPI-документация с использованием zod-to-openapi
+- Валидация данных через Zod
 - Аутентификация по JWT (access + refresh)
 - Fingerprint-защита refresh-токенов
+- Получение изображений из multipart/form-data
 - Хранение изображений в файловой системе
-- Хранение данных в БД Postgres
-- Валидация данных через Zod
 - Валидация расширений изборажений по File Magic Numbers
-- Контейнеризация через Docker Compose
+- Хранение данных в БД Postgres
+- Контейнеризация через Docker, Docker Compose
 
-Использовалось: NestJS, PostgreSQL, TypeORM, JWT, Zod, Multer, OpenAPI, Docker, Docker Compose
+Использовалось: NestJS, PostgreSQL, TypeORM, JWT, Zod, Multer, swagger-ui-express, zod-to-openapi, Docker, Docker Compose
 
 ## API
 

@@ -1,7 +1,5 @@
 ## Тестовое задание️ REST API — NestJS + PostgreSQL + JWT
-![Openapi preview](./readme-openapi-preview.png)
 
-**Тестовое задание**  
 REST API блога для работы с профилем пользователя и его постами, написанный на NestJS с использованием PostgreSQL и TypeORM.
 
 Включает в себя:  
@@ -17,13 +15,13 @@ REST API блога для работы с профилем пользовате
 - Хранение данных в БД Postgres
 - Контейнеризация через Docker, Docker Compose
 
-Использовалось: NestJS, PostgreSQL, TypeORM, JWT, Zod, Multer, swagger-ui-express, zod-to-openapi, Docker, Docker Compose
+NestJS, PostgreSQL, TypeORM, JWT, Zod, Multer, swagger-ui-express, zod-to-openapi, Docker, Docker Compose
 
 ## API
 
-#### Документация REST API доступна в двух вариантах:
+#### Документация доступна в двух вариантах:
 
-1. Интерактивный Swagger UI: доступнен по url `OPENAPI_URL>/api` (`<OPENAPI_URL>` берется из `.env`)
+1. Swagger UI: доступнен по url `OPENAPI_URL>/api` (Настраивается в `.env`)
 2. Файл OpenAPI: `docs/openapi.yaml`
 
 #### Получение изображений
@@ -75,4 +73,4 @@ docker-compose up -d
 - Интерактивный Swagger UI [`http://localhost:3001/api`](http://localhost:3001/api)
 - PostgreSQL — база данных
 
-Логин, пароль, имя базы, а также другие настройки берутся из файла `.env`
+Настройки берутся из файла `.env`
